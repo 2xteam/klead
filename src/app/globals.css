@@ -1,0 +1,75 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+  --klead-primary: #7407ff;
+  --klead-primary-hover: #5f06d4;
+  --klead-black: #000000;
+  --klead-gray-900: #212121;
+  --klead-gray-800: #363636;
+  --klead-gray-700: #4b4b4b;
+  --klead-gray-500: #838383;
+  --klead-gray-400: #979797;
+  --klead-gray-300: #a9a9a9;
+  --klead-gray-200: #d4d4d4;
+  --klead-gray-100: #dedede;
+  --klead-footer-bg: #222222;
+  --klead-footer-border: #414141;
+  --background: #ffffff;
+  --foreground: #212121;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-klead-primary: var(--klead-primary);
+  --color-klead-gray-500: var(--klead-gray-500);
+  --color-klead-gray-800: var(--klead-gray-800);
+  --font-sans: "Poppins", "Pretendard Variable", "Pretendard", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.7s ease-out both;
+}

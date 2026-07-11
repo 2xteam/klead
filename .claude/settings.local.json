@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"location: %header{location}\\\\n\" http://localhost:3000/mypage)",
+      "Bash(curl -s http://localhost:3000/courses)",
+      "Bash(curl -s http://localhost:3000/curators)",
+      "Bash(curl -s http://localhost:3000/courses/nonexistent-xyz)",
+      "Bash(curl -s http://localhost:3000/courses/body-care)",
+      "Bash(curl -s http://localhost:3000/curators/nonexistent-xyz)"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+---
+description: KLEAD 프로젝트 공통 개발 규칙
+globs: src/**
+alwaysApply: true
+---
+
+# KLEAD 개발 규칙
+
+- TypeScript strict, `any` 사용 금지
+- API Route Handler는 Zod 검증 필수
+- 권한 검증은 `lib/permissions/canAccess.ts` 단일 진입점 사용
+- UI는 `docs/03-design-system-klead.md` 및 humanizer-ui 스킬 준수
+- MongoDB DB명: `klead`
+- 커밋 전: `npm run lint` + `npm run build`

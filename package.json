@@ -1,0 +1,42 @@
+{
+  "name": "klead",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "seed": "node --env-file=.env.local scripts/seed.mjs",
+    "seed:expert": "node --env-file=.env.local scripts/seed-expert.mjs",
+    "seed:classes": "node --env-file=.env.local scripts/seed-classes.mjs",
+    "migrate:images": "node --env-file=.env.local scripts/migrate-images-to-r2.mjs",
+    "seed:admin": "node --env-file=.env.local scripts/seed-admin.mjs",
+    "seed:structure": "node --env-file=.env.local scripts/seed-site-structure.mjs",
+    "seed:instagram": "node --env-file=.env.local scripts/seed-instagram.mjs",
+    "seed:reviews": "node --env-file=.env.local scripts/seed-reviews.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1084.0",
+    "@aws-sdk/s3-request-presigner": "^3.1084.0",
+    "clsx": "^2.1.1",
+    "mongoose": "^9.7.4",
+    "next": "16.2.10",
+    "next-auth": "^5.0.0-beta.31",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "playwright": "^1.61.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
