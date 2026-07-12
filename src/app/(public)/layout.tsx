@@ -1,5 +1,6 @@
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { AiAssistant } from "@/components/ai/ai-assistant";
 import connectDB from "@/lib/db/mongodb";
 import { Menu } from "@/lib/db/models";
 import type { NavItem } from "@/config/site";
@@ -43,6 +44,7 @@ export default async function PublicLayout({
       <Header nav={nav} />
       <main className="min-h-[60vh] flex-1">{children}</main>
       <Footer />
+      <AiAssistant />
     </>
   );
 }

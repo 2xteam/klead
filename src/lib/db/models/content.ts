@@ -81,6 +81,7 @@ export interface IContent {
   lectureCategory?: LectureCategory;
   title: string;
   summary?: string;
+  aiSummary?: string; // AI 상담사가 추천에 사용하는 강의 설명(선택)
   body: string;
   thumbnail?: string;
   gallery?: string[]; // 상품 상단 이미지 갤러리
@@ -165,6 +166,7 @@ const ContentSchema = new Schema<IContent>(
     },
     title: { type: String, required: true },
     summary: String,
+    aiSummary: String,
     body: { type: String, default: "" },
     thumbnail: String,
     gallery: [String],
