@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { IPageSection } from "@/lib/db/models/content";
+import { SectionsEditor } from "@/components/admin/sections-editor";
+import { SlugField } from "@/components/admin/slug-field";
+import { ImageInput, ImageListInput } from "@/components/admin/image-input";
 
 export interface ClassFormData {
   slug: string;
@@ -13,7 +16,14 @@ export interface ClassFormData {
   priceDisplay: "inquiry" | "free" | "amount";
   priceAmount: number | null;
   isPublic: boolean;
+  permissionTypeId: string;
   sections: IPageSection[];
+}
+
+export interface PermissionOption {
+  id: string;
+  name: string;
+  code: string;
 }
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -22,11 +32,21 @@ const field =
   "w-full rounded-md border border-black/15 px-3 py-2 text-[14px] focus:border-klead-primary focus:outline-none";
 const labelCls = "mb-1 block text-[13px] font-semibold text-klead-gray-700";
 
-export function ClassEditor({ initial }: { initial: ClassFormData }) {
+export function ClassEditor({
+  initial,
+  contentId,
+  permissionOptions = [],
+}: {
+  initial: ClassFormData;
+  contentId?: string | null;
+  permissionOptions?: PermissionOption[];
+}) {
   const router = useRouter();
   const [form, setForm] = useState<ClassFormData>(initial);
   const [state, setState] = useState<SaveState>("idle");
   const [message, setMessage] = useState("");
+  // 원본 slug(URL 조회용) — 이름 변경 시에도 기존 문서를 찾기 위함
+  const origSlug = useRef(initial.slug).current;
 
   function update<K extends keyof ClassFormData>(
     key: K,
@@ -36,43 +56,15 @@ export function ClassEditor({ initial }: { initial: ClassFormData }) {
     setState("idle");
   }
 
-  function updateItem(
-    sIdx: number,
-    iIdx: number,
-    key: "title" | "subtitle" | "description",
-    value: string,
-  ) {
-    setForm((f) => {
-      const sections = structuredClone(f.sections);
-      const items = sections[sIdx].items;
-      if (items?.[iIdx]) items[iIdx][key] = value;
-      return { ...f, sections };
-    });
-    setState("idle");
-  }
-
-  function updateBullets(sIdx: number, iIdx: number, value: string) {
-    setForm((f) => {
-      const sections = structuredClone(f.sections);
-      const items = sections[sIdx].items;
-      if (items?.[iIdx])
-        items[iIdx].bullets = value
-          .split("\n")
-          .map((s) => s.trim())
-          .filter(Boolean);
-      return { ...f, sections };
-    });
-    setState("idle");
-  }
-
   async function save() {
     setState("saving");
     setMessage("");
     try {
-      const res = await fetch(`/api/admin/classes/${form.slug}`, {
+      const res = await fetch(`/api/admin/classes/${origSlug}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          slug: form.slug,
           title: form.title,
           summary: form.summary,
           thumbnail: form.thumbnail,
@@ -80,6 +72,7 @@ export function ClassEditor({ initial }: { initial: ClassFormData }) {
           priceDisplay: form.priceDisplay,
           priceAmount: form.priceAmount,
           isPublic: form.isPublic,
+          permissionTypeId: form.permissionTypeId,
           sections: form.sections,
         }),
       });
@@ -89,6 +82,9 @@ export function ClassEditor({ initial }: { initial: ClassFormData }) {
       }
       setState("saved");
       setMessage("저장되었습니다.");
+      if (form.slug !== origSlug) {
+        router.push(`/admin/classes/${form.slug}`);
+      }
       router.refresh();
     } catch (e) {
       setState("error");
@@ -99,6 +95,13 @@ export function ClassEditor({ initial }: { initial: ClassFormData }) {
   return (
     <div className="space-y-6">
       <section className="space-y-4 rounded-lg border border-black/10 bg-white p-6">
+        <SlugField
+          value={form.slug}
+          onChange={(v) => update("slug", v)}
+          scope="content"
+          excludeId={contentId ?? undefined}
+          hint="URL에 사용됩니다. 예: /courses/waxing-basic-01"
+        />
         <div>
           <label className={labelCls}>제목</label>
           <input
@@ -117,31 +120,40 @@ export function ClassEditor({ initial }: { initial: ClassFormData }) {
           />
         </div>
         <div>
-          <label className={labelCls}>썸네일 URL</label>
-          <input
-            className={field}
+          <label className={labelCls}>썸네일</label>
+          <ImageInput
             value={form.thumbnail}
-            onChange={(e) => update("thumbnail", e.target.value)}
+            onChange={(v) => update("thumbnail", v)}
+            folder="courses"
           />
         </div>
         <div>
-          <label className={labelCls}>상품 갤러리 이미지 URL (줄바꿈으로 여러 개)</label>
-          <textarea
-            className={field}
-            rows={3}
-            value={form.gallery.join("\n")}
-            onChange={(e) =>
-              update(
-                "gallery",
-                e.target.value
-                  .split("\n")
-                  .map((s) => s.trim())
-                  .filter(Boolean),
-              )
-            }
+          <label className={labelCls}>상품 갤러리 이미지</label>
+          <ImageListInput
+            value={form.gallery}
+            onChange={(v) => update("gallery", v)}
+            folder="courses"
           />
           <p className="mt-1 text-[12px] text-klead-gray-400">
             비우면 썸네일 이미지가 상품 대표 이미지로 사용됩니다.
+          </p>
+        </div>
+        <div>
+          <label className={labelCls}>열람 권한 (프로그램·권한 매핑)</label>
+          <select
+            className={field}
+            value={form.permissionTypeId}
+            onChange={(e) => update("permissionTypeId", e.target.value)}
+          >
+            <option value="">권한 없음 (누구나 열람)</option>
+            {permissionOptions.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name} ({p.code})
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-[12px] text-klead-gray-400">
+            이 권한을 보유한(구독/부여) 회원만 강의 페이지를 열람할 수 있습니다.
           </p>
         </div>
         <div className="flex gap-6">
@@ -192,71 +204,15 @@ export function ClassEditor({ initial }: { initial: ClassFormData }) {
         </div>
       </section>
 
-      {form.sections.map((section, sIdx) => (
-        <section
-          key={section.key}
-          className="space-y-4 rounded-lg border border-black/10 bg-white p-6"
-        >
-          <h2 className="text-[15px] font-bold">
-            섹션: {section.title ?? section.key}
-            <span className="ml-2 text-[12px] font-normal text-klead-gray-400">
-              {section.key}
-            </span>
-          </h2>
-          {section.items?.map((item, iIdx) => (
-            <div
-              key={iIdx}
-              className="space-y-2 rounded-md border border-black/10 bg-[#fafafa] p-4"
-            >
-              <input
-                className={field}
-                placeholder="제목"
-                value={item.title ?? ""}
-                onChange={(e) =>
-                  updateItem(sIdx, iIdx, "title", e.target.value)
-                }
-              />
-              {"subtitle" in item && (
-                <input
-                  className={field}
-                  placeholder="부제"
-                  value={item.subtitle ?? ""}
-                  onChange={(e) =>
-                    updateItem(sIdx, iIdx, "subtitle", e.target.value)
-                  }
-                />
-              )}
-              <textarea
-                className={field}
-                rows={2}
-                placeholder="설명"
-                value={item.description ?? ""}
-                onChange={(e) =>
-                  updateItem(sIdx, iIdx, "description", e.target.value)
-                }
-              />
-              {item.bullets && item.bullets.length > 0 && (
-                <textarea
-                  className={field}
-                  rows={item.bullets.length + 1}
-                  placeholder="세부 항목 (줄바꿈 구분)"
-                  value={item.bullets.join("\n")}
-                  onChange={(e) => updateBullets(sIdx, iIdx, e.target.value)}
-                />
-              )}
-            </div>
-          ))}
-        </section>
-      ))}
+      <section className="space-y-4">
+        <h2 className="text-[15px] font-bold">구역(섹션) 구성</h2>
+        <SectionsEditor
+          value={form.sections}
+          onChange={(sections) => update("sections", sections)}
+        />
+      </section>
 
-      <div className="sticky bottom-0 flex items-center gap-4 border-t border-black/10 bg-white/90 py-4 backdrop-blur">
-        <button
-          onClick={save}
-          disabled={state === "saving"}
-          className="rounded-md bg-klead-primary px-6 py-2 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
-          {state === "saving" ? "저장 중…" : "저장"}
-        </button>
+      <div className="sticky bottom-0 flex items-center justify-end gap-4 border-t border-black/10 bg-white/90 py-4 pr-4 backdrop-blur">
         {message && (
           <span
             className={
@@ -268,6 +224,13 @@ export function ClassEditor({ initial }: { initial: ClassFormData }) {
             {message}
           </span>
         )}
+        <button
+          onClick={save}
+          disabled={state === "saving"}
+          className="rounded-md bg-klead-primary px-6 py-2 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {state === "saving" ? "저장 중…" : "저장"}
+        </button>
       </div>
     </div>
   );

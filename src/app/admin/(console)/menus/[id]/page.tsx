@@ -23,6 +23,7 @@ const EMPTY_FORM: MenuFormData = {
   isVisible: true,
   badge: "",
   icon: "",
+  fixed: false,
 };
 
 export default async function AdminMenuEditPage({
@@ -67,9 +68,10 @@ export default async function AdminMenuEditPage({
       isVisible: doc.isVisible,
       badge: doc.badge ?? "",
       icon: doc.icon ?? "",
+      fixed: doc.fixed ?? false,
     };
     heading = "메뉴 수정";
-    sub = `/${doc.slug}`;
+    sub = doc.path ?? doc.name;
   }
 
   return (

@@ -95,9 +95,22 @@ export async function POST(req: Request) {
 
   const { slug, ...rest } = parsed.data;
   await connectDB();
+
+  let finalSlug = slug && slug.trim().length > 0 ? slug.trim() : slugify(rest.title);
+  const existing = await Content.findOne({ slug: finalSlug }).select("_id").lean();
+  if (existing) {
+    if (slug && slug.trim().length > 0) {
+      return NextResponse.json(
+        { error: "이미 사용 중인 슬러그입니다." },
+        { status: 409 },
+      );
+    }
+    finalSlug = `${finalSlug}-${Date.now()}`;
+  }
+
   const doc = await Content.create({
     ...rest,
-    slug: slug && slug.length > 0 ? slug : slugify(rest.title),
+    slug: finalSlug,
     type: "content",
     contentCategory: "curator",
   });

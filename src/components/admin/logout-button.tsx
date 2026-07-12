@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 export function AdminLogoutButton() {
   const router = useRouter();
   async function logout() {
-    await fetch("/api/admin/login", { method: "DELETE" });
-    router.replace("/admin/login");
+    await fetch("/api/dev-login", { method: "DELETE" });
+    router.replace("/login");
     router.refresh();
   }
   return (

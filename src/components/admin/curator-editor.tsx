@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { IPageSection } from "@/lib/db/models/content";
 import { SectionsEditor } from "@/components/admin/sections-editor";
+import { SlugField } from "@/components/admin/slug-field";
+import { ImageInput } from "@/components/admin/image-input";
 
 export interface CuratorFormData {
   slug: string;
@@ -22,10 +24,12 @@ const labelCls = "mb-1 block text-[13px] font-semibold text-klead-gray-500";
 
 export function CuratorEditor({
   slug,
+  contentId,
   initial,
 }: {
   /** null이면 새 큐레이터(POST), 아니면 기존(PUT) */
   slug: string | null;
+  contentId?: string | null;
   initial: CuratorFormData;
 }) {
   const router = useRouter();
@@ -47,6 +51,7 @@ export function CuratorEditor({
     setMessage("");
     try {
       const payload = {
+        slug: form.slug,
         title: form.title,
         summary: form.summary,
         thumbnail: form.thumbnail,
@@ -102,6 +107,13 @@ export function CuratorEditor({
   return (
     <div className="space-y-6">
       <section className="space-y-4 rounded-lg border border-black/10 bg-white p-6">
+        <SlugField
+          value={form.slug}
+          onChange={(v) => update("slug", v)}
+          scope="content"
+          excludeId={contentId ?? undefined}
+          hint="URL에 사용됩니다. 예: /curators/kim-boryeong"
+        />
         <div>
           <label className={labelCls}>이름</label>
           <input
@@ -119,11 +131,11 @@ export function CuratorEditor({
           />
         </div>
         <div>
-          <label className={labelCls}>썸네일 URL</label>
-          <input
-            className={field}
+          <label className={labelCls}>썸네일</label>
+          <ImageInput
             value={form.thumbnail}
-            onChange={(e) => update("thumbnail", e.target.value)}
+            onChange={(v) => update("thumbnail", v)}
+            folder="curators"
           />
         </div>
         <label className="flex cursor-pointer items-center gap-2 text-[14px]">
@@ -145,23 +157,7 @@ export function CuratorEditor({
         />
       </section>
 
-      <div className="sticky bottom-0 flex items-center gap-4 border-t border-black/10 bg-white/90 py-4 backdrop-blur">
-        <button
-          onClick={save}
-          disabled={state === "saving"}
-          className="rounded-md bg-klead-primary px-6 py-2 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
-          {state === "saving" ? "저장 중…" : "저장"}
-        </button>
-        {!isNew && (
-          <button
-            onClick={remove}
-            disabled={state === "saving"}
-            className="rounded-md border border-black/15 px-6 py-2 text-[14px] font-semibold text-red-600 transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            삭제
-          </button>
-        )}
+      <div className="sticky bottom-0 flex items-center justify-end gap-4 border-t border-black/10 bg-white/90 py-4 pr-4 backdrop-blur">
         {message && (
           <span
             className={
@@ -173,6 +169,22 @@ export function CuratorEditor({
             {message}
           </span>
         )}
+        {!isNew && (
+          <button
+            onClick={remove}
+            disabled={state === "saving"}
+            className="rounded-md border border-black/15 px-6 py-2 text-[14px] font-semibold text-red-600 transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            삭제
+          </button>
+        )}
+        <button
+          onClick={save}
+          disabled={state === "saving"}
+          className="rounded-md bg-klead-primary px-6 py-2 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {state === "saving" ? "저장 중…" : "저장"}
+        </button>
       </div>
     </div>
   );

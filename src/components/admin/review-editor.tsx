@@ -14,34 +14,26 @@ export interface ReviewFormData {
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
-const field =
-  "w-full rounded-md border border-black/15 px-3 py-2 text-[14px] focus:border-klead-primary focus:outline-none";
 const labelCls = "mb-1 block text-[13px] font-semibold text-klead-gray-700";
+const readBox =
+  "w-full rounded-md border border-black/10 bg-[#fafafa] px-3 py-2 text-[14px] text-klead-gray-700";
 
 export function ReviewEditor({ initial }: { initial: ReviewFormData }) {
   const router = useRouter();
-  const [rating, setRating] = useState(initial.rating);
-  const [title, setTitle] = useState(initial.title);
-  const [body, setBody] = useState(initial.body);
+  // 별점·제목·내용은 구매자가 작성 → 관리자 수정 불가(읽기전용)
   const [isVisible, setIsVisible] = useState(initial.isVisible);
   const [isFeatured, setIsFeatured] = useState(initial.isFeatured);
   const [state, setState] = useState<SaveState>("idle");
   const [message, setMessage] = useState("");
 
-  async function save() {
+  async function persist(next: { isVisible: boolean; isFeatured: boolean }) {
     setState("saving");
     setMessage("");
     try {
       const res = await fetch(`/api/admin/reviews/${initial.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rating,
-          title,
-          body,
-          isVisible,
-          isFeatured,
-        }),
+        body: JSON.stringify(next),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -54,6 +46,15 @@ export function ReviewEditor({ initial }: { initial: ReviewFormData }) {
       setState("error");
       setMessage(e instanceof Error ? e.message : "저장 실패");
     }
+  }
+
+  function save() {
+    persist({ isVisible, isFeatured });
+  }
+
+  function hide() {
+    setIsVisible(false);
+    persist({ isVisible: false, isFeatured });
   }
 
   async function remove() {
@@ -78,50 +79,36 @@ export function ReviewEditor({ initial }: { initial: ReviewFormData }) {
 
   return (
     <section className="space-y-4 rounded-lg border border-black/10 bg-white p-6">
+      <p className="rounded-md bg-klead-primary/5 px-3 py-2 text-[12px] text-klead-gray-500">
+        별점·제목·내용은 구매자가 작성한 내용으로 수정할 수 없습니다. 노출·추천
+        상태만 관리합니다.
+      </p>
       <div>
         <label className={labelCls}>평점</label>
-        <select
-          className={field}
-          value={rating}
-          onChange={(e) => {
-            setRating(Number(e.target.value));
-            setState("idle");
-          }}
-        >
-          {[1, 2, 3, 4, 5].map((n) => (
-            <option key={n} value={n}>
-              {"★".repeat(n)} ({n}점)
-            </option>
-          ))}
-        </select>
+        <div className={readBox}>
+          <span className="text-[15px] text-klead-primary">
+            {"★".repeat(initial.rating)}
+            <span className="text-black/20">
+              {"★".repeat(5 - initial.rating)}
+            </span>
+          </span>
+          <span className="ml-2 text-klead-gray-400">
+            ({initial.rating}점)
+          </span>
+        </div>
       </div>
       <div>
         <label className={labelCls}>제목</label>
-        <input
-          className={field}
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            setState("idle");
-          }}
-          placeholder="제목을 입력하세요."
-        />
+        <div className={readBox}>{initial.title || "-"}</div>
       </div>
       <div>
         <label className={labelCls}>내용</label>
-        <textarea
-          className={field}
-          rows={8}
-          value={body}
-          onChange={(e) => {
-            setBody(e.target.value);
-            setState("idle");
-          }}
-          placeholder="리뷰 내용을 입력하세요."
-        />
+        <div className={`${readBox} min-h-[120px] whitespace-pre-wrap`}>
+          {initial.body || "-"}
+        </div>
       </div>
       <div className="flex items-center gap-6">
-        <label className="flex items-center gap-2 text-[14px] text-klead-gray-700">
+        <label className="flex cursor-pointer items-center gap-2 text-[14px] text-klead-gray-700">
           <input
             type="checkbox"
             checked={isVisible}
@@ -132,7 +119,7 @@ export function ReviewEditor({ initial }: { initial: ReviewFormData }) {
           />
           노출
         </label>
-        <label className="flex items-center gap-2 text-[14px] text-klead-gray-700">
+        <label className="flex cursor-pointer items-center gap-2 text-[14px] text-klead-gray-700">
           <input
             type="checkbox"
             checked={isFeatured}
@@ -144,13 +131,20 @@ export function ReviewEditor({ initial }: { initial: ReviewFormData }) {
           추천
         </label>
       </div>
-      <div className="flex items-center gap-4 border-t border-black/10 pt-4">
+      <div className="flex items-center gap-3 border-t border-black/10 pt-4">
         <button
           onClick={save}
           disabled={state === "saving"}
           className="rounded-md bg-klead-primary px-6 py-2 text-[14px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {state === "saving" ? "저장 중…" : "저장"}
+        </button>
+        <button
+          onClick={hide}
+          disabled={state === "saving" || !isVisible}
+          className="rounded-md border border-black/15 px-6 py-2 text-[14px] font-semibold text-klead-gray-700 transition-colors hover:bg-black/5 disabled:opacity-40"
+        >
+          숨김
         </button>
         <button
           onClick={remove}

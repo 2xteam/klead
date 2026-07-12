@@ -51,7 +51,12 @@ export default async function AdminCuratorsPage() {
                 className="border-b border-black/5 last:border-0 hover:bg-[#fafafa]"
               >
                 <td className="px-4 py-3">
-                  <span className="font-medium">{d.title}</span>
+                  <Link
+                    href={`/admin/curators/${d.slug}`}
+                    className="font-medium hover:text-klead-primary hover:underline"
+                  >
+                    {d.title}
+                  </Link>
                   <span className="ml-2 text-[12px] text-klead-gray-400">
                     /{d.slug}
                   </span>
@@ -79,12 +84,22 @@ export default async function AdminCuratorsPage() {
                     : "-"}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/admin/curators/${d.slug}`}
-                    className="text-[13px] font-medium text-klead-primary hover:underline"
-                  >
-                    수정
-                  </Link>
+                  <div className="flex items-center justify-end gap-3">
+                    <Link
+                      href={`/admin/curators/${d.slug}`}
+                      className="text-[13px] font-medium text-klead-primary hover:underline"
+                    >
+                      수정
+                    </Link>
+                    <a
+                      href={`/curators/${d.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[13px] font-medium text-klead-gray-500 hover:underline"
+                    >
+                      보기
+                    </a>
+                  </div>
                 </td>
               </tr>
             ))}

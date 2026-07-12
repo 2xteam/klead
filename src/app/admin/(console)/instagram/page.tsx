@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminInstagramPage() {
   await connectDB();
   const docs = await InstagramPost.find({})
-    .select("image caption isActive sortOrder")
+    .select("image caption link isActive sortOrder")
     .sort({ sortOrder: 1, createdAt: -1 })
     .lean();
 
@@ -51,16 +51,19 @@ export default async function AdminInstagramPage() {
                     <img
                       src={d.image}
                       alt=""
-                      className="h-12 w-12 rounded object-cover"
+                      className="h-16 w-16 rounded object-cover"
                     />
                   ) : (
-                    <div className="h-12 w-12 rounded bg-black/5" />
+                    <div className="h-16 w-16 rounded bg-black/5" />
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  <span className="line-clamp-1 text-klead-gray-500">
-                    {d.caption || "-"}
-                  </span>
+                  <Link
+                    href={`/admin/instagram/${String(d._id)}`}
+                    className="block max-w-[320px] truncate text-klead-gray-500 hover:text-klead-primary hover:underline"
+                  >
+                    {d.caption || "(캡션 없음)"}
+                  </Link>
                 </td>
                 <td className="px-4 py-3">
                   <span
@@ -75,12 +78,24 @@ export default async function AdminInstagramPage() {
                 </td>
                 <td className="px-4 py-3 text-klead-gray-500">{d.sortOrder}</td>
                 <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/admin/instagram/${String(d._id)}`}
-                    className="text-[13px] font-medium text-klead-primary hover:underline"
-                  >
-                    수정
-                  </Link>
+                  <div className="flex items-center justify-end gap-3">
+                    <Link
+                      href={`/admin/instagram/${String(d._id)}`}
+                      className="text-[13px] font-medium text-klead-primary hover:underline"
+                    >
+                      수정
+                    </Link>
+                    {d.link && (
+                      <a
+                        href={d.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[13px] font-medium text-klead-gray-500 hover:underline"
+                      >
+                        보기
+                      </a>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

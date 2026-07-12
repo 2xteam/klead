@@ -1,23 +1,52 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import connectDB from "@/lib/db/mongodb";
 import { Content } from "@/lib/db/models";
 import type { IPageSection } from "@/lib/db/models/content";
 import { SectionRenderer } from "@/components/content/section-renderer";
+import { CuratorTabs, type CuratorTab } from "@/components/content/curator-tabs";
+import { hydrateBannerSections } from "@/lib/content/hydrate-sections";
 
 export const dynamic = "force-dynamic";
+
+// klead 탭 순서
+const TAB_ORDER = [
+  "kim-boryeong",
+  "kim-yujeong",
+  "shin-semi",
+  "moon-seolhui",
+  "lee-hayan",
+  "jo-euna",
+  "chae-hansol",
+];
 
 async function getCurator(slug: string) {
   await connectDB();
   return Content.findOne({
-    slug: `curator-${slug}`,
+    slug,
     type: "content",
     contentCategory: "curator",
     isPublic: true,
     "publish.status": "published",
     deletedAt: null,
   }).lean();
+}
+
+async function getTabs(): Promise<CuratorTab[]> {
+  await connectDB();
+  const docs = await Content.find({
+    type: "content",
+    contentCategory: "curator",
+    isPublic: true,
+    "publish.status": "published",
+    deletedAt: null,
+  })
+    .select("slug title")
+    .lean();
+  const tabs = docs.map((d) => ({ slug: d.slug, name: d.title }));
+  return tabs.sort(
+    (a, b) => TAB_ORDER.indexOf(a.slug) - TAB_ORDER.indexOf(b.slug),
+  );
 }
 
 export async function generateMetadata({
@@ -45,27 +74,18 @@ export default async function CuratorDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const doc = await getCurator(slug);
+  const [doc, tabs] = await Promise.all([getCurator(slug), getTabs()]);
   if (!doc) notFound();
 
-  const sections = JSON.parse(
+  const rawSections = JSON.parse(
     JSON.stringify(doc.sections ?? []),
   ) as IPageSection[];
+  const sections = await hydrateBannerSections(rawSections);
 
   return (
     <>
+      <CuratorTabs tabs={tabs} activeSlug={slug} />
       <SectionRenderer sections={sections} />
-
-      <div className="bg-white">
-        <div className="mx-auto max-w-[1280px] px-4 py-12 lg:px-6">
-          <Link
-            href="/curators"
-            className="inline-flex items-center gap-2 rounded-full border border-black/10 px-5 py-2.5 text-[14px] font-semibold text-klead-gray-900 transition hover:bg-black/5"
-          >
-            <span aria-hidden>←</span> 목록으로
-          </Link>
-        </div>
-      </div>
     </>
   );
 }

@@ -19,6 +19,7 @@ export interface SerializedMenu {
   isVisible: boolean;
   icon: string | null;
   badge: string | null;
+  fixed: boolean;
 }
 
 export interface MenuOption {
@@ -39,6 +40,7 @@ export interface MenuFormData {
   isVisible: boolean;
   badge: string;
   icon: string;
+  fixed: boolean;
 }
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -77,7 +79,6 @@ export function MenuEditor({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: form.name,
-            slug: form.slug,
             parentId: form.parentId ? form.parentId : null,
             linkType: form.linkType,
             path: form.path,
@@ -136,23 +137,13 @@ export function MenuEditor({
   return (
     <div className="space-y-6">
       <section className="space-y-4 rounded-lg border border-black/10 bg-white p-6">
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className={labelCls}>이름</label>
-            <input
-              className={field}
-              value={form.name}
-              onChange={(e) => update("name", e.target.value)}
-            />
-          </div>
-          <div className="flex-1">
-            <label className={labelCls}>슬러그 (고유)</label>
-            <input
-              className={field}
-              value={form.slug}
-              onChange={(e) => update("slug", e.target.value)}
-            />
-          </div>
+        <div>
+          <label className={labelCls}>이름</label>
+          <input
+            className={field}
+            value={form.name}
+            onChange={(e) => update("name", e.target.value)}
+          />
         </div>
 
         <div>
@@ -175,8 +166,9 @@ export function MenuEditor({
           <div className="flex-1">
             <label className={labelCls}>링크 유형</label>
             <select
-              className={field}
+              className={`${field} disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-klead-gray-400`}
               value={form.linkType}
+              disabled={form.fixed}
               onChange={(e) =>
                 update("linkType", e.target.value as MenuLinkType)
               }
@@ -201,11 +193,17 @@ export function MenuEditor({
           <div>
             <label className={labelCls}>경로 (path)</label>
             <input
-              className={field}
+              className={`${field} disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-klead-gray-400`}
               placeholder="/about"
               value={form.path}
+              disabled={form.fixed}
               onChange={(e) => update("path", e.target.value)}
             />
+            {form.fixed && (
+              <p className="mt-1 text-[12px] text-klead-gray-400">
+                콘텐츠가 아닌 고정 페이지입니다. 경로는 수정할 수 없습니다.
+              </p>
+            )}
           </div>
         )}
 
@@ -213,9 +211,10 @@ export function MenuEditor({
           <div>
             <label className={labelCls}>외부 URL</label>
             <input
-              className={field}
+              className={`${field} disabled:cursor-not-allowed disabled:bg-black/5 disabled:text-klead-gray-400`}
               placeholder="https://example.com"
               value={form.externalUrl}
+              disabled={form.fixed}
               onChange={(e) => update("externalUrl", e.target.value)}
             />
           </div>

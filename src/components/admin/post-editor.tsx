@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { IPageSection } from "@/lib/db/models/content";
+import { SectionsEditor } from "@/components/admin/sections-editor";
+import { ImageInput } from "@/components/admin/image-input";
+import { SlugField } from "@/components/admin/slug-field";
 
 export type ContentCategory =
   | "notice"
@@ -23,6 +27,7 @@ export interface PostFormData {
   isPinned: boolean;
   isPublic: boolean;
   publishStatus: PublishStatus;
+  sections: IPageSection[];
 }
 
 type SaveState = "idle" | "saving" | "deleting" | "saved" | "error";
@@ -76,6 +81,7 @@ export function PostEditor({ initial }: { initial: PostFormData }) {
       isPinned: form.isPinned,
       isPublic: form.isPublic,
       publishStatus: form.publishStatus,
+      sections: form.sections,
     };
     try {
       const res = await fetch(
@@ -136,15 +142,14 @@ export function PostEditor({ initial }: { initial: PostFormData }) {
             onChange={(e) => update("title", e.target.value)}
           />
         </div>
-        <div>
-          <label className={labelCls}>슬러그 (비우면 자동 생성)</label>
-          <input
-            className={field}
-            value={form.slug}
-            placeholder="my-post-slug"
-            onChange={(e) => update("slug", e.target.value)}
-          />
-        </div>
+        <SlugField
+          value={form.slug}
+          onChange={(v) => update("slug", v)}
+          scope="content"
+          excludeId={form._id ?? undefined}
+          label="슬러그 (비우면 자동 생성)"
+          hint="비우면 제목 기반으로 자동 생성됩니다."
+        />
         <div>
           <label className={labelCls}>분류</label>
           <select
@@ -171,20 +176,20 @@ export function PostEditor({ initial }: { initial: PostFormData }) {
           />
         </div>
         <div>
-          <label className={labelCls}>본문 (HTML 허용)</label>
+          <label className={labelCls}>본문 (HTML 허용, 선택)</label>
           <textarea
             className={`${field} font-mono`}
-            rows={12}
+            rows={6}
             value={form.body}
             onChange={(e) => update("body", e.target.value)}
           />
         </div>
         <div>
-          <label className={labelCls}>썸네일 URL</label>
-          <input
-            className={field}
+          <label className={labelCls}>썸네일</label>
+          <ImageInput
             value={form.thumbnail}
-            onChange={(e) => update("thumbnail", e.target.value)}
+            onChange={(v) => update("thumbnail", v)}
+            folder="posts"
           />
         </div>
         <div className="flex flex-wrap items-end gap-6">
@@ -225,7 +230,18 @@ export function PostEditor({ initial }: { initial: PostFormData }) {
         </div>
       </section>
 
-      <div className="sticky bottom-0 flex items-center gap-4 border-t border-black/10 bg-white/90 py-4 backdrop-blur">
+      <section className="space-y-4">
+        <h2 className="text-[15px] font-bold">구역(섹션) 구성</h2>
+        <p className="text-[13px] text-klead-gray-500">
+          큐레이터와 동일하게 구역을 추가·편집할 수 있습니다.
+        </p>
+        <SectionsEditor
+          value={form.sections}
+          onChange={(sections) => update("sections", sections)}
+        />
+      </section>
+
+      <div className="sticky bottom-0 z-10 flex items-center justify-end gap-4 border-t border-black/10 bg-white/90 py-4 pr-4 backdrop-blur">
         <button
           onClick={save}
           disabled={state === "saving" || state === "deleting"}

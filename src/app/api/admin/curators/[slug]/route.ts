@@ -35,6 +35,7 @@ const sectionSchema = z.object({
 });
 
 const updateSchema = z.object({
+  slug: z.string().optional(),
   title: z.string().min(1).optional(),
   summary: z.string().optional(),
   thumbnail: z.string().optional(),
@@ -88,16 +89,44 @@ export async function PUT(
   }
 
   await connectDB();
-  const doc = await Content.findOneAndUpdate(
-    { slug, type: "content", contentCategory: "curator", deletedAt: null },
-    { $set: parsed.data },
+
+  const current = await Content.findOne({
+    slug,
+    type: "content",
+    contentCategory: "curator",
+    deletedAt: null,
+  })
+    .select("_id")
+    .lean();
+  if (!current) {
+    return NextResponse.json({ error: "not found" }, { status: 404 });
+  }
+
+  const { slug: newSlug, ...rest } = parsed.data;
+  const set: Record<string, unknown> = { ...rest };
+  if (newSlug && newSlug.trim() && newSlug.trim() !== slug) {
+    const dupe = await Content.findOne({
+      slug: newSlug.trim(),
+      _id: { $ne: current._id },
+    })
+      .select("_id")
+      .lean();
+    if (dupe) {
+      return NextResponse.json(
+        { error: "이미 사용 중인 슬러그입니다." },
+        { status: 409 },
+      );
+    }
+    set.slug = newSlug.trim();
+  }
+
+  const doc = await Content.findByIdAndUpdate(
+    current._id,
+    { $set: set },
     { new: true },
   ).lean();
 
-  if (!doc) {
-    return NextResponse.json({ error: "not found" }, { status: 404 });
-  }
-  return NextResponse.json({ ok: true, slug: doc.slug });
+  return NextResponse.json({ ok: true, slug: doc?.slug });
 }
 
 export async function DELETE(

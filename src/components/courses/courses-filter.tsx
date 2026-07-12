@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { SquareCourseCard } from "@/components/common/square-course-card";
 
 export interface CourseCard {
   slug: string;
@@ -12,25 +11,20 @@ export interface CourseCard {
   thumbnail?: string;
   lectureCategory?: string;
   priceDisplay?: string;
+  locked?: boolean;
 }
 
 const CATEGORIES: { key: string; label: string }[] = [
   { key: "all", label: "전체" },
   { key: "waxing", label: "왁싱" },
+  { key: "eyebrow", label: "눈썹" },
   { key: "scalp", label: "두피관리" },
   { key: "face_design", label: "페이스디자인" },
   { key: "skin_care", label: "피부관리" },
+  { key: "body_care", label: "바디관리" },
   { key: "theory", label: "이론" },
   { key: "business", label: "경영" },
 ];
-
-const CAT_LABEL: Record<string, string> = Object.fromEntries(
-  CATEGORIES.map((c) => [c.key, c.label]),
-);
-
-function priceLabel(p?: string) {
-  return p === "free" ? "무료" : p === "amount" ? "유료" : "가격문의";
-}
 
 export function CoursesFilter({ courses }: { courses: CourseCard[] }) {
   const params = useSearchParams();
@@ -75,37 +69,16 @@ export function CoursesFilter({ courses }: { courses: CourseCard[] }) {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((c) => (
-            <Link
+            <SquareCourseCard
               key={c.slug}
-              href={`/courses/${c.slug}`}
-              className="group block"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-[#111]">
-                {c.thumbnail && (
-                  <Image
-                    src={c.thumbnail}
-                    alt={c.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width:1024px) 100vw, 400px"
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              </div>
-              <div className="mt-4">
-                {c.lectureCategory && (
-                  <p className="mb-1 text-[12px] text-klead-primary">
-                    {CAT_LABEL[c.lectureCategory] ?? c.lectureCategory}
-                  </p>
-                )}
-                <h3 className="text-[16px] font-bold">
-                  {c.title}
-                </h3>
-                <p className="mt-1 text-[13px] text-klead-gray-500">
-                  {priceLabel(c.priceDisplay)}
-                </p>
-              </div>
-            </Link>
+              href={c.locked ? `/courses/${c.slug}` : `/lecture/${c.slug}`}
+              title={c.title}
+              image={c.thumbnail}
+              subtitle={c.summary}
+              locked={c.locked}
+              productHref={`/courses/${c.slug}`}
+              subscribeHref="/programs"
+            />
           ))}
         </div>
       )}

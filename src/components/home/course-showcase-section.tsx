@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { brandAssets } from "@/config/site";
 import { Reveal } from "@/components/common/reveal";
+import { SquareCourseCard } from "@/components/common/square-course-card";
 
 export function CourseShowcaseSection() {
   return (
@@ -22,28 +22,12 @@ export function CourseShowcaseSection() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {brandAssets.featuredCourses.map((course, index) => (
           <Reveal key={course.title} delay={index * 120} as="article">
-            <Link
+            <SquareCourseCard
               href={course.href}
-              className="group block transition-transform duration-500 ease-out hover:-translate-y-1.5"
-            >
-              <div className="relative aspect-square overflow-hidden rounded-lg bg-[#f5f5f5] shadow-sm transition-shadow duration-500 group-hover:shadow-xl">
-                <Image
-                  src={course.image}
-                  alt={course.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-              </div>
-              <div className="mt-3">
-                <h3 className="text-[16px] font-bold text-klead-gray-800">
-                  {course.title}
-                </h3>
-                <p className="text-[16px] font-bold text-klead-gray-800">
-                  {course.priceLabel}
-                </p>
-              </div>
-            </Link>
+              title={course.title}
+              image={course.image}
+              subtitle={course.priceLabel}
+            />
           </Reveal>
         ))}
       </div>

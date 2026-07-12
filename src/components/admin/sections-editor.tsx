@@ -1,47 +1,134 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   IPageSection,
   IPageSectionItem,
   SectionType,
 } from "@/lib/db/models/content";
-import { SECTION_TYPES } from "@/lib/content/section-types";
+import { SECTION_TYPE_LABELS } from "@/lib/content/section-types";
+import { ImageInput, ImageListInput } from "@/components/admin/image-input";
+import { SectionTypePicker } from "@/components/admin/section-type-picker";
 
 const field =
   "w-full rounded-md border border-black/15 px-3 py-2 text-[14px] focus:border-klead-primary focus:outline-none";
 const labelCls = "mb-1 block text-[13px] font-semibold text-klead-gray-500";
 
-const TYPE_LABEL: Record<SectionType, string> = {
-  hero: "히어로",
-  richText: "리치 텍스트",
-  image: "이미지",
-  imageText: "이미지+텍스트",
-  gallery: "갤러리",
-  cards: "카드",
-  steps: "단계",
-  profileHeader: "프로필 헤더",
-  partners: "파트너",
-  contact: "연락처",
-};
+const TYPE_LABEL = SECTION_TYPE_LABELS;
 
-/** 이미지 관련 필드(imageUrl/backgroundImage/imagePosition)를 쓰는 타입 */
-const IMAGE_TYPES: SectionType[] = ["hero", "image", "imageText", "profileHeader"];
-/** items 배열을 쓰는 타입 */
+/** imageUrl 필드를 쓰는 타입 */
+const IMAGE_URL_TYPES: SectionType[] = [
+  "hero",
+  "image",
+  "imageText",
+  "profile",
+  "profileHeader",
+];
+/** backgroundImage 필드를 쓰는 타입 */
+const BG_IMAGE_TYPES: SectionType[] = ["hero", "profile", "profileHeader"];
+/** imagePosition 필드를 쓰는 타입 */
+const IMAGE_POS_TYPES: SectionType[] = ["imageText", "slider", "profileHeader"];
+/** 이미지 목록(갤러리 슬라이더)을 쓰는 타입 */
+const GALLERY_TYPES: SectionType[] = ["gallery", "slider"];
+/** 일반 items 배열(제목/설명/이미지/링크)을 쓰는 타입 */
 const ITEM_TYPES: SectionType[] = [
   "cards",
   "steps",
-  "gallery",
   "partners",
   "contact",
   "imageText",
+  "profile",
+  "linkCards",
 ];
 
-function isImageType(t: SectionType) {
-  return IMAGE_TYPES.includes(t);
+/** 제목을 쓰지 않는 타입(슬라이더=이미지목록, 배너=배너선택) */
+const NO_TITLE_TYPES: SectionType[] = ["slider", "banner", "divider"];
+/** 부제를 쓰는 타입 */
+const SUBTITLE_TYPES: SectionType[] = [
+  "hero",
+  "richText",
+  "imageText",
+  "profile",
+  "profileHeader",
+  "linkCards",
+];
+/** 본문을 쓰는 타입 */
+const BODY_TYPES: SectionType[] = [
+  "hero",
+  "richText",
+  "imageText",
+  "profile",
+  "profileHeader",
+  "splitText",
+];
+
+/** item(항목)별 노출 필드 */
+type ItemField =
+  | "title"
+  | "description"
+  | "imageUrl"
+  | "iconUrl"
+  | "linkUrl"
+  | "bullets";
+const ITEM_FIELDS: Partial<Record<SectionType, ItemField[]>> = {
+  cards: ["iconUrl", "title", "description"],
+  steps: ["title", "bullets"],
+  imageText: ["title"],
+  profile: ["title", "description"],
+  linkCards: ["imageUrl", "title", "linkUrl"],
+  banner: ["imageUrl"],
+  partners: ["imageUrl", "title"],
+  contact: ["title", "description", "linkUrl"],
+};
+
+function hasImageUrl(t: SectionType) {
+  return IMAGE_URL_TYPES.includes(t);
+}
+function hasBgImage(t: SectionType) {
+  return BG_IMAGE_TYPES.includes(t);
+}
+function hasImagePos(t: SectionType) {
+  return IMAGE_POS_TYPES.includes(t);
+}
+function isGalleryType(t: SectionType) {
+  return GALLERY_TYPES.includes(t);
 }
 function isItemType(t: SectionType) {
   return ITEM_TYPES.includes(t);
+}
+function showTitle(t: SectionType) {
+  return !NO_TITLE_TYPES.includes(t);
+}
+function showSubtitle(t: SectionType) {
+  return SUBTITLE_TYPES.includes(t);
+}
+function showBody(t: SectionType) {
+  return BODY_TYPES.includes(t);
+}
+function itemShow(t: SectionType, f: ItemField) {
+  const fields = ITEM_FIELDS[t];
+  return fields ? fields.includes(f) : true;
+}
+/** 타입별 라벨(문맥) */
+function bodyLabel(t: SectionType) {
+  if (t === "splitText") return "본문 (줄바꿈 = 목록 항목)";
+  if (t === "profile") return "경력 (줄바꿈으로 구분)";
+  return "본문";
+}
+function itemsLabel(t: SectionType) {
+  switch (t) {
+    case "profile":
+      return "실적/수치";
+    case "linkCards":
+      return "링크 카드";
+    case "banner":
+    case "partners":
+      return "로고";
+    case "contact":
+      return "연락처 항목";
+    default:
+      return "항목";
+  }
 }
 
 function emptyItem(sortOrder: number): IPageSectionItem {
@@ -69,7 +156,7 @@ function emptySection(type: SectionType, index: number): IPageSection {
     theme: "light",
     imagePosition: "left",
     lazy: false,
-    items: isItemType(type) ? [] : undefined,
+    items: isItemType(type) || isGalleryType(type) ? [] : undefined,
     sortOrder: index,
   };
 }
@@ -86,7 +173,19 @@ export function SectionsEditor({
   value: IPageSection[];
   onChange: (next: IPageSection[]) => void;
 }) {
-  const [addType, setAddType] = useState<SectionType>("richText");
+  const [banners, setBanners] = useState<{ _id: string; name: string }[]>([]);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/banners")
+      .then((r) => (r.ok ? r.json() : { items: [] }))
+      .then((d) => {
+        if (alive) setBanners(d.items ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   function mutate(fn: (draft: IPageSection[]) => void) {
     const draft = structuredClone(value);
@@ -94,9 +193,9 @@ export function SectionsEditor({
     onChange(resequence(draft));
   }
 
-  function addSection() {
+  function addSectionOfType(t: SectionType) {
     mutate((d) => {
-      d.push(emptySection(addType, d.length));
+      d.push(emptySection(t, d.length));
     });
   }
 
@@ -237,71 +336,133 @@ export function SectionsEditor({
               </label>
             </div>
 
-            <div>
-              <label className={labelCls}>제목</label>
-              <input
-                className={field}
-                value={section.title ?? ""}
-                onChange={(e) => updateField(sIdx, "title", e.target.value)}
-              />
-            </div>
-            <div>
-              <label className={labelCls}>부제</label>
-              <input
-                className={field}
-                value={section.subtitle ?? ""}
-                onChange={(e) => updateField(sIdx, "subtitle", e.target.value)}
-              />
-            </div>
-            <div>
-              <label className={labelCls}>본문</label>
-              <textarea
-                className={field}
-                rows={4}
-                value={section.body ?? ""}
-                onChange={(e) => updateField(sIdx, "body", e.target.value)}
-              />
-            </div>
+            {showTitle(type) && (
+              <div>
+                <label className={labelCls}>제목</label>
+                <input
+                  className={field}
+                  value={section.title ?? ""}
+                  onChange={(e) => updateField(sIdx, "title", e.target.value)}
+                />
+              </div>
+            )}
+            {showSubtitle(type) && (
+              <div>
+                <label className={labelCls}>부제</label>
+                <input
+                  className={field}
+                  value={section.subtitle ?? ""}
+                  onChange={(e) =>
+                    updateField(sIdx, "subtitle", e.target.value)
+                  }
+                />
+              </div>
+            )}
+            {showBody(type) && (
+              <div>
+                <label className={labelCls}>{bodyLabel(type)}</label>
+                <textarea
+                  className={field}
+                  rows={4}
+                  value={section.body ?? ""}
+                  onChange={(e) => updateField(sIdx, "body", e.target.value)}
+                />
+              </div>
+            )}
 
-            {isImageType(type) && (
+            {(hasImageUrl(type) || hasBgImage(type) || hasImagePos(type)) && (
               <div className="space-y-4 rounded-md border border-black/10 bg-[#fafafa] p-4">
-                <div>
-                  <label className={labelCls}>이미지 URL</label>
-                  <input
-                    className={field}
-                    value={section.imageUrl ?? ""}
-                    onChange={(e) =>
-                      updateField(sIdx, "imageUrl", e.target.value)
-                    }
-                  />
-                </div>
-                <div>
-                  <label className={labelCls}>배경 이미지 URL</label>
-                  <input
-                    className={field}
-                    value={section.backgroundImage ?? ""}
-                    onChange={(e) =>
-                      updateField(sIdx, "backgroundImage", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="w-40">
-                  <label className={labelCls}>이미지 위치</label>
-                  <select
-                    className={field}
-                    value={section.imagePosition ?? "left"}
-                    onChange={(e) =>
-                      updateField(
-                        sIdx,
-                        "imagePosition",
-                        e.target.value as IPageSection["imagePosition"],
-                      )
-                    }
+                {hasImageUrl(type) && (
+                  <div>
+                    <label className={labelCls}>이미지</label>
+                    <ImageInput
+                      value={section.imageUrl ?? ""}
+                      onChange={(v) => updateField(sIdx, "imageUrl", v)}
+                      folder="content"
+                    />
+                  </div>
+                )}
+                {hasBgImage(type) && (
+                  <div>
+                    <label className={labelCls}>배경 이미지</label>
+                    <ImageInput
+                      value={section.backgroundImage ?? ""}
+                      onChange={(v) => updateField(sIdx, "backgroundImage", v)}
+                      folder="content"
+                    />
+                  </div>
+                )}
+                {hasImagePos(type) && (
+                  <div className="w-40">
+                    <label className={labelCls}>
+                      {type === "slider" ? "슬라이드 방향" : "이미지 위치"}
+                    </label>
+                    <select
+                      className={field}
+                      value={section.imagePosition ?? "left"}
+                      onChange={(e) =>
+                        updateField(
+                          sIdx,
+                          "imagePosition",
+                          e.target.value as IPageSection["imagePosition"],
+                        )
+                      }
+                    >
+                      <option value="left">
+                        {type === "slider" ? "← 왼쪽으로" : "왼쪽"}
+                      </option>
+                      <option value="right">
+                        {type === "slider" ? "→ 오른쪽으로" : "오른쪽"}
+                      </option>
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {isGalleryType(type) && (
+              <div className="rounded-md border border-black/10 bg-[#fafafa] p-4">
+                <ImageListInput
+                  folder="gallery"
+                  value={(section.items ?? [])
+                    .map((it) => it.imageUrl)
+                    .filter((u): u is string => !!u)}
+                  onChange={(urls) =>
+                    updateField(
+                      sIdx,
+                      "items",
+                      urls.map((imageUrl, i) => ({ imageUrl, sortOrder: i })),
+                    )
+                  }
+                />
+              </div>
+            )}
+
+            {type === "banner" && (
+              <div className="space-y-2 rounded-md border border-black/10 bg-[#fafafa] p-4">
+                <label className={labelCls}>배너 선택 (배너 관리에서 등록)</label>
+                <select
+                  className={field}
+                  value={section.bannerId ?? ""}
+                  onChange={(e) => updateField(sIdx, "bannerId", e.target.value)}
+                >
+                  <option value="">— 배너를 선택하세요 —</option>
+                  {banners.map((b) => (
+                    <option key={b._id} value={b._id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[12px] text-klead-gray-400">
+                  선택한 배너의 배경·제목·로고가 이 구역에 표시됩니다.
+                  <a
+                    href="/admin/banners"
+                    target="_blank"
+                    className="ml-1 text-klead-primary hover:underline"
                   >
-                    <option value="left">왼쪽</option>
-                    <option value="right">오른쪽</option>
-                  </select>
-                </div>
+                    배너 관리 →
+                  </a>
+                </p>
               </div>
             )}
 
@@ -309,14 +470,14 @@ export function SectionsEditor({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[13px] font-semibold text-klead-gray-500">
-                    항목 ({section.items?.length ?? 0})
+                    {itemsLabel(type)} ({section.items?.length ?? 0})
                   </span>
                   <button
                     type="button"
                     onClick={() => addItem(sIdx)}
                     className="rounded-md border border-black/15 px-3 py-1 text-[13px] font-semibold"
                   >
-                    + 항목 추가
+                    + 추가
                   </button>
                 </div>
                 {section.items?.map((item, iIdx) => (
@@ -336,69 +497,87 @@ export function SectionsEditor({
                         삭제
                       </button>
                     </div>
-                    <input
-                      className={field}
-                      placeholder="제목"
-                      value={item.title ?? ""}
-                      onChange={(e) =>
-                        updateItemField(sIdx, iIdx, "title", e.target.value)
-                      }
-                    />
-                    <textarea
-                      className={field}
-                      rows={2}
-                      placeholder="설명"
-                      value={item.description ?? ""}
-                      onChange={(e) =>
-                        updateItemField(
-                          sIdx,
-                          iIdx,
-                          "description",
-                          e.target.value,
-                        )
-                      }
-                    />
-                    <input
-                      className={field}
-                      placeholder="이미지 URL"
-                      value={item.imageUrl ?? ""}
-                      onChange={(e) =>
-                        updateItemField(sIdx, iIdx, "imageUrl", e.target.value)
-                      }
-                    />
-                    <input
-                      className={field}
-                      placeholder="아이콘 URL"
-                      value={item.iconUrl ?? ""}
-                      onChange={(e) =>
-                        updateItemField(sIdx, iIdx, "iconUrl", e.target.value)
-                      }
-                    />
-                    <input
-                      className={field}
-                      placeholder="링크 URL"
-                      value={item.linkUrl ?? ""}
-                      onChange={(e) =>
-                        updateItemField(sIdx, iIdx, "linkUrl", e.target.value)
-                      }
-                    />
-                    <textarea
-                      className={field}
-                      rows={3}
-                      placeholder="세부 항목 (줄바꿈 구분)"
-                      value={(item.bullets ?? []).join("\n")}
-                      onChange={(e) =>
-                        updateItemField(
-                          sIdx,
-                          iIdx,
-                          "bullets",
-                          e.target.value
-                            .split("\n")
-                            .map((s) => s.trim())
-                            .filter(Boolean),
-                        )
-                      }
-                    />
+                    {itemShow(type, "imageUrl") && (
+                      <div>
+                        <label className={labelCls}>이미지</label>
+                        <ImageInput
+                          value={item.imageUrl ?? ""}
+                          onChange={(v) =>
+                            updateItemField(sIdx, iIdx, "imageUrl", v)
+                          }
+                          folder="content"
+                        />
+                      </div>
+                    )}
+                    {itemShow(type, "iconUrl") && (
+                      <div>
+                        <label className={labelCls}>아이콘</label>
+                        <ImageInput
+                          value={item.iconUrl ?? ""}
+                          onChange={(v) =>
+                            updateItemField(sIdx, iIdx, "iconUrl", v)
+                          }
+                          folder="content"
+                        />
+                      </div>
+                    )}
+                    {itemShow(type, "title") && (
+                      <input
+                        className={field}
+                        placeholder={type === "profile" ? "제목(수치 앞 문구)" : "제목"}
+                        value={item.title ?? ""}
+                        onChange={(e) =>
+                          updateItemField(sIdx, iIdx, "title", e.target.value)
+                        }
+                      />
+                    )}
+                    {itemShow(type, "description") && (
+                      <textarea
+                        className={field}
+                        rows={2}
+                        placeholder={
+                          type === "profile" ? "강조 수치(볼드)" : "설명"
+                        }
+                        value={item.description ?? ""}
+                        onChange={(e) =>
+                          updateItemField(
+                            sIdx,
+                            iIdx,
+                            "description",
+                            e.target.value,
+                          )
+                        }
+                      />
+                    )}
+                    {itemShow(type, "linkUrl") && (
+                      <input
+                        className={field}
+                        placeholder="링크 URL"
+                        value={item.linkUrl ?? ""}
+                        onChange={(e) =>
+                          updateItemField(sIdx, iIdx, "linkUrl", e.target.value)
+                        }
+                      />
+                    )}
+                    {itemShow(type, "bullets") && (
+                      <textarea
+                        className={field}
+                        rows={3}
+                        placeholder="세부 항목 (줄바꿈 구분)"
+                        value={(item.bullets ?? []).join("\n")}
+                        onChange={(e) =>
+                          updateItemField(
+                            sIdx,
+                            iIdx,
+                            "bullets",
+                            e.target.value
+                              .split("\n")
+                              .map((s) => s.trim())
+                              .filter(Boolean),
+                          )
+                        }
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -407,26 +586,7 @@ export function SectionsEditor({
         );
       })}
 
-      <div className="flex items-center gap-2 rounded-lg border border-dashed border-black/15 bg-white p-4">
-        <select
-          className={`${field} w-auto flex-1`}
-          value={addType}
-          onChange={(e) => setAddType(e.target.value as SectionType)}
-        >
-          {SECTION_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {TYPE_LABEL[t]}
-            </option>
-          ))}
-        </select>
-        <button
-          type="button"
-          onClick={addSection}
-          className="shrink-0 rounded-md bg-klead-primary px-5 py-2 text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
-        >
-          구역 추가
-        </button>
-      </div>
+      <SectionTypePicker onAdd={addSectionOfType} />
     </div>
   );
 }

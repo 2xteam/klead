@@ -37,7 +37,7 @@ function NavDropdown({ item }: { item: NavItem }) {
             <Link
               key={child.href}
               href={child.href}
-              className="block px-5 py-2.5 text-[14px] text-black transition-colors hover:bg-[#f5f5f5] hover:text-[#d4d4d4]"
+              className="block px-5 py-2.5 text-[14px] text-[#161616]! transition-colors hover:bg-[#f5f5f5] hover:text-klead-primary!"
             >
               {child.label}
             </Link>

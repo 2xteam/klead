@@ -13,6 +13,8 @@ export interface IMenu {
   isVisible: boolean;
   icon?: string;
   badge?: string;
+  /** 고정 시스템 메뉴(콘텐츠가 아닌 앱 라우트) — 경로/링크유형 수정 불가 */
+  fixed?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +36,7 @@ const MenuSchema = new Schema<IMenu>(
     isVisible: { type: Boolean, default: true },
     icon: String,
     badge: String,
+    fixed: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

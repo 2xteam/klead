@@ -14,7 +14,10 @@
     "seed:admin": "node --env-file=.env.local scripts/seed-admin.mjs",
     "seed:structure": "node --env-file=.env.local scripts/seed-site-structure.mjs",
     "seed:instagram": "node --env-file=.env.local scripts/seed-instagram.mjs",
-    "seed:reviews": "node --env-file=.env.local scripts/seed-reviews.mjs"
+    "seed:reviews": "node --env-file=.env.local scripts/seed-reviews.mjs",
+    "seed:classdetail": "node --env-file=.env.local scripts/seed-class-detail.mjs",
+    "seed:curators": "node --env-file=.env.local scripts/seed-curators-full.mjs",
+    "seed:lecturepages": "node --env-file=.env.local scripts/seed-lecture-pages.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1084.0",

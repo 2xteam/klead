@@ -23,6 +23,7 @@ const createSchema = z.object({
   isPinned: z.boolean().optional(),
   isPublic: z.boolean().optional(),
   publishStatus: z.enum(STATUS_ENUM).optional(),
+  sections: z.array(z.any()).optional(),
 });
 
 function slugify(input: string): string {
@@ -39,7 +40,11 @@ function slugify(input: string): string {
 /** 게시글(content) 목록 — 관리자 */
 export async function GET() {
   await connectDB();
-  const docs = await Content.find({ type: "content", deletedAt: null })
+  const docs = await Content.find({
+    type: "content",
+    contentCategory: { $ne: "curator" },
+    deletedAt: null,
+  })
     .select("slug title contentCategory isPublic isPinned publish updatedAt")
     .sort({ updatedAt: -1 })
     .lean();
@@ -101,6 +106,7 @@ export async function POST(req: Request) {
     isPinned: data.isPinned ?? false,
     isPublic: data.isPublic ?? false,
     publish: { status: data.publishStatus ?? "draft" },
+    sections: data.sections ?? [],
   });
 
   return NextResponse.json(

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import { brandAssets } from "@/config/site";
 import { AdminLogoutButton } from "@/components/admin/logout-button";
 
 const navGroups = [
@@ -18,6 +20,7 @@ const navGroups = [
       { label: "Q&A", href: "/admin/qna", ready: true },
       { label: "팝업", href: "/admin/popups", ready: true },
       { label: "인스타그램", href: "/admin/instagram", ready: true },
+      { label: "배너 관리", href: "/admin/banners", ready: true },
     ],
   },
   {
@@ -25,6 +28,7 @@ const navGroups = [
     items: [
       { label: "회원 관리", href: "/admin/members", ready: true },
       { label: "프로그램·권한", href: "/admin/programs", ready: true },
+      { label: "강의 열람권 이벤트", href: "/admin/access", ready: true },
       { label: "SiteSettings", href: "/admin/settings", ready: true },
     ],
   },
@@ -38,9 +42,19 @@ export default function ConsoleLayout({
   return (
     <div className="flex min-h-screen bg-[#f4f4f5] text-klead-gray-900">
       <aside className="w-60 shrink-0 border-r border-black/10 bg-white">
-        <div className="flex h-16 items-center border-b border-black/10 px-6">
-          <Link href="/admin" className="text-[18px] font-bold">
-            KLEAD <span className="text-klead-primary">Admin</span>
+        <div className="flex h-16 items-center gap-2 border-b border-black/10 px-6">
+          <Link href="/admin" className="flex items-center gap-2">
+            <Image
+              src={brandAssets.logo.default}
+              alt="KLEAD"
+              width={90}
+              height={28}
+              className="h-6 w-auto"
+              priority
+            />
+            <span className="text-[15px] font-bold text-klead-primary">
+              Admin
+            </span>
           </Link>
         </div>
         <nav className="space-y-6 p-4">

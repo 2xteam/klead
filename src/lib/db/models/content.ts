@@ -45,9 +45,15 @@ export type SectionType =
   | "image"
   | "imageText"
   | "gallery"
+  | "slider"
   | "cards"
   | "steps"
+  | "profile"
   | "profileHeader"
+  | "splitText"
+  | "divider"
+  | "linkCards"
+  | "banner"
   | "partners"
   | "contact";
 
@@ -63,6 +69,7 @@ export interface IPageSection {
   imagePosition?: "left" | "right";
   lazy?: boolean;
   items?: IPageSectionItem[];
+  bannerId?: string; // type === "banner" 일 때 참조하는 Banner _id
   sortOrder: number;
 }
 
@@ -77,6 +84,8 @@ export interface IContent {
   body: string;
   thumbnail?: string;
   gallery?: string[]; // 상품 상단 이미지 갤러리
+  permissionTypeId?: Types.ObjectId; // 강의 열람에 필요한 권한(PermissionType)
+  learnSections?: IPageSection[]; // 강의(학습) 페이지 콘텐츠 — 상품 페이지와 별도
   attachments: {
     fileName: string;
     fileSize: number;
@@ -159,6 +168,8 @@ const ContentSchema = new Schema<IContent>(
     body: { type: String, default: "" },
     thumbnail: String,
     gallery: [String],
+    permissionTypeId: { type: Schema.Types.ObjectId, ref: "PermissionType" },
+    learnSections: [PageSectionSchema],
     attachments: [AttachmentSchema],
     sections: [PageSectionSchema],
     relatedInstructorIds: [{ type: Schema.Types.ObjectId, ref: "Instructor" }],
