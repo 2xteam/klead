@@ -7,7 +7,7 @@ import { GallerySlider } from "@/components/common/gallery-slider";
 function themeCls(theme?: string) {
   return theme === "dark" ? "bg-[#0e0e0e] text-white" : "bg-white text-klead-gray-900";
 }
-const wrap = "mx-auto max-w-[1280px] px-4 lg:px-6";
+const wrap = "mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28";
 
 function Hero({ s }: { s: IPageSection }) {
   return (
@@ -21,7 +21,7 @@ function Hero({ s }: { s: IPageSection }) {
           sizes="100vw"
         />
       )}
-      <div className={`relative ${wrap} py-24 text-center lg:py-32`}>
+      <div className={`relative ${wrap} text-center`}>
         {s.subtitle && (
           <p className="mb-4 text-[14px] tracking-widest text-klead-primary">{s.subtitle}</p>
         )}
@@ -41,7 +41,7 @@ function Hero({ s }: { s: IPageSection }) {
 function RichText({ s }: { s: IPageSection }) {
   return (
     <section className={themeCls(s.theme)}>
-      <div className={`${wrap} py-16 lg:py-20`}>
+      <div className={`${wrap}`}>
         {s.title && <h2 className="mb-4 text-[22px] font-bold sm:text-[28px]">{s.title}</h2>}
         {s.subtitle && <p className="mb-6 text-[15px] text-klead-primary">{s.subtitle}</p>}
         {s.body && (
@@ -59,7 +59,7 @@ function FullImage({ s }: { s: IPageSection }) {
   if (!s.imageUrl) return null;
   return (
     <section className={themeCls(s.theme)}>
-      <div className={`${wrap} py-8`}>
+      <div className={`${wrap}`}>
         <Image
           src={s.imageUrl}
           alt={s.title ?? ""}
@@ -77,7 +77,7 @@ function ImageText({ s }: { s: IPageSection }) {
   const right = s.imagePosition === "right";
   return (
     <section className={themeCls(s.theme)}>
-      <div className={`${wrap} grid items-center gap-8 py-16 lg:grid-cols-2 lg:py-20`}>
+      <div className={`${wrap} grid items-center gap-8 lg:grid-cols-2`}>
         {s.imageUrl && (
           <div className={`relative aspect-[4/3] overflow-hidden rounded-lg bg-black/5 ${right ? "lg:order-2" : ""}`}>
             <Image src={s.imageUrl} alt={s.title ?? ""} fill className="object-cover" sizes="(max-width:1024px) 100vw, 600px" />
@@ -107,7 +107,7 @@ function Gallery({ s }: { s: IPageSection }) {
   if (!imgs.length) return null;
   return (
     <section className={themeCls(s.theme)}>
-      <div className={`${wrap} py-16 lg:py-20`}>
+      <div className={`${wrap}`}>
         {s.title && <h2 className="mb-8 text-center text-[22px] font-bold sm:text-[28px]">{s.title}</h2>}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {imgs.map((it, i) => (
@@ -147,7 +147,7 @@ function Profile({ s }: { s: IPageSection }) {
         />
       )}
       <div
-        className={`relative ${wrap} grid items-center gap-10 py-16 lg:grid-cols-2 lg:py-24`}
+        className={`relative ${wrap} grid items-center gap-10 lg:grid-cols-2`}
       >
         {s.imageUrl && (
           <div className="relative mx-auto aspect-[3/4] w-full max-w-[560px] overflow-hidden">
@@ -203,7 +203,7 @@ function SplitText({ s }: { s: IPageSection }) {
   const lines = (s.body ?? "").split("\n").filter((l) => l.trim());
   return (
     <section className={themeCls(s.theme ?? "dark")}>
-      <div className={`${wrap} grid gap-6 py-14 lg:grid-cols-12 lg:py-20`}>
+      <div className={`${wrap} grid gap-6 lg:grid-cols-12`}>
         <div className="lg:col-span-5">
           {s.title && (
             <h2 className="text-[24px] font-bold sm:text-[30px]">{s.title}</h2>
@@ -224,7 +224,7 @@ function SplitText({ s }: { s: IPageSection }) {
 function Cards({ s }: { s: IPageSection }) {
   return (
     <section className={themeCls(s.theme ?? "dark")}>
-      <div className={`${wrap} py-16 lg:py-24`}>
+      <div className={`${wrap}`}>
         {s.title && <h2 className="mb-10 text-center text-[22px] font-bold sm:text-[28px]">{s.title}</h2>}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {s.items?.map((it, i) => (
@@ -245,7 +245,7 @@ function Cards({ s }: { s: IPageSection }) {
 function Steps({ s }: { s: IPageSection }) {
   return (
     <section className={themeCls(s.theme ?? "dark")}>
-      <div className={`${wrap} py-16 lg:py-24`}>
+      <div className={`${wrap}`}>
         {s.title && <h2 className="mb-10 text-center text-[22px] font-bold sm:text-[28px]">{s.title}</h2>}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {s.items?.map((it, i) => (
@@ -278,7 +278,7 @@ function ProfileHeader({ s }: { s: IPageSection }) {
       {s.backgroundImage && (
         <Image src={s.backgroundImage} alt="" fill className="object-cover opacity-25" sizes="100vw" />
       )}
-      <div className={`relative ${wrap} flex flex-col items-center gap-8 py-20 lg:flex-row lg:items-end lg:py-28`}>
+      <div className={`relative ${wrap} flex flex-col items-center gap-8 lg:flex-row lg:items-end`}>
         {s.imageUrl && (
           <div className="relative aspect-[3/4] w-56 shrink-0 overflow-hidden rounded-xl bg-black/20">
             <Image src={s.imageUrl} alt={s.title ?? ""} fill className="object-cover" sizes="224px" />
@@ -300,7 +300,7 @@ function Partners({ s }: { s: IPageSection }) {
     .map((i) => ({ imageUrl: i.imageUrl!, alt: i.title ?? "partner" }));
   return (
     <section className={themeCls(s.theme ?? "dark")}>
-      <div className={`${wrap} py-16 lg:py-20`}>
+      <div className={`${wrap}`}>
         {s.title && <h2 className="mb-10 text-center text-[24px] font-bold sm:text-[28px]">{s.title}</h2>}
         {logos.length > 0 && <PartnerSlider items={logos} />}
       </div>
@@ -311,7 +311,7 @@ function Partners({ s }: { s: IPageSection }) {
 function Divider({ s }: { s: IPageSection }) {
   return (
     <section className={themeCls(s.theme ?? "dark")}>
-      <div className={`${wrap} py-2`}>
+      <div className={`${wrap}`}>
         <hr
           className={
             (s.theme ?? "dark") === "dark"
@@ -328,7 +328,7 @@ function LinkCards({ s }: { s: IPageSection }) {
   const items = s.items ?? [];
   return (
     <section className={themeCls(s.theme ?? "dark")}>
-      <div className={`${wrap} py-16 lg:py-24`}>
+      <div className={`${wrap}`}>
         {(s.title || s.subtitle) && (
           <div className="mb-14">
             {s.title && (
@@ -393,7 +393,7 @@ function Banner({ s }: { s: IPageSection }) {
         />
       )}
       <div className="absolute inset-0 bg-[rgba(5,5,5,0.6)]" />
-      <div className={`relative ${wrap} py-28 text-center`}>
+      <div className={`relative ${wrap} text-center`}>
         {s.subtitle && (
           <Reveal>
             <span className="inline-block rounded-full border border-white/50 px-5 py-1.5 text-[13px] text-white/90">
@@ -434,7 +434,7 @@ function Banner({ s }: { s: IPageSection }) {
 function Contact({ s }: { s: IPageSection }) {
   return (
     <section className={themeCls(s.theme ?? "dark")}>
-      <div className={`${wrap} py-16 lg:py-20`}>
+      <div className={`${wrap}`}>
         <h2 className="mb-10 text-[28px] font-bold">{s.title ?? "Contact us."}</h2>
         <div className="grid gap-4 md:grid-cols-3">
           {s.items?.map((it, i) => (

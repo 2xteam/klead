@@ -57,7 +57,7 @@ export default async function CuratorsPage() {
       />
 
       <section className="bg-white">
-        <div className="mx-auto max-w-[1280px] px-4 py-16 lg:px-6 lg:py-20">
+        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
           {curators.length ? (
             <ul className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
               {curators.map((c) => {

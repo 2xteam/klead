@@ -12,7 +12,7 @@ export function CtaBannerSection() {
         style={{ backgroundImage: `url(${ctaBanner.image})` }}
       />
       <div className="absolute inset-0 bg-[rgba(4,4,4,0.62)]" />
-      <div className="relative mx-auto max-w-[1280px] px-4 py-16 text-center lg:px-6 lg:py-20">
+      <div className="relative mx-auto max-w-[1280px] px-4 py-24 text-center lg:px-6 lg:py-28">
         <Reveal>
           <h2 className="text-[24px] font-bold leading-snug text-white sm:text-[32px]">
             {ctaBanner.title}

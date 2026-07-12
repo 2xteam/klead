@@ -192,7 +192,7 @@ export default async function MyPage() {
             {lectures.map((l) => (
               <li key={l.slug}>
                 <Link
-                  href={`/courses/${l.slug}`}
+                  href={`/lecture/${l.slug}`}
                   className="block rounded-lg border border-black/10 bg-white p-5 transition hover:shadow-md"
                 >
                   {l.category && (

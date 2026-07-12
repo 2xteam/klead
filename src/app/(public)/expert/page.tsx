@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import connectDB from "@/lib/db/mongodb";
-import { Content } from "@/lib/db/models";
+import { Content, Banner } from "@/lib/db/models";
 import { ExpertProgramView } from "@/components/expert/expert-program-view";
 import { PlaceholderPage } from "@/components/common/placeholder-page";
+import { hydrateBannerSections } from "@/lib/content/hydrate-sections";
+import type { IPageSection } from "@/lib/db/models/content";
 
 export async function generateMetadata(): Promise<Metadata> {
   await connectDB();
@@ -42,7 +44,25 @@ export default async function ExpertPage() {
     );
   }
 
-  return (
-    <ExpertProgramView title={doc.title} sections={doc.sections} />
-  );
+  // "파트너들" 자리는 배너 관리에서 만든 파트너사 배너로 렌더
+  const partnerBanner = await Banner.findOne({ name: "파트너사 배너" })
+    .select("_id")
+    .lean();
+
+  let sections = doc.sections as IPageSection[];
+  if (partnerBanner) {
+    sections = sections.map((s) =>
+      s.key === "partners"
+        ? {
+            key: "partners",
+            type: "banner" as const,
+            bannerId: String(partnerBanner._id),
+            sortOrder: s.sortOrder,
+          }
+        : s,
+    );
+    sections = await hydrateBannerSections(sections);
+  }
+
+  return <ExpertProgramView title={doc.title} sections={sections} />;
 }

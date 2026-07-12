@@ -120,7 +120,7 @@ export default async function LecturePage({
 
   return (
     <div className="bg-[#0e0e0e] text-white">
-      <div className="mx-auto max-w-[1280px] px-4 py-14 lg:px-6 lg:py-20">
+      <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
         <p className="mb-3 text-[13px] tracking-widest text-klead-primary">
           LECTURE
         </p>
@@ -141,7 +141,7 @@ export default async function LecturePage({
       {learn.length > 0 ? (
         <SectionRenderer sections={learn} />
       ) : (
-        <div className="mx-auto max-w-[1280px] px-4 pb-24 lg:px-6">
+        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
           <div className="rounded-xl border border-white/10 bg-white/5 p-10 text-center">
             <p className="text-[16px] font-semibold">
               강의 콘텐츠가 곧 공개됩니다.

@@ -64,7 +64,7 @@ export default async function ProgramDetailPage({
         description={program.description ?? "구독 프로그램"}
       />
       <section className="bg-white">
-        <div className="mx-auto max-w-[900px] px-4 py-16 lg:px-6 lg:py-20">
+        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
           <div className="rounded-2xl border border-black/10 p-8 lg:p-10">
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-black/10 pb-6">
               <div>

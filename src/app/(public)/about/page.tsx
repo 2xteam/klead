@@ -52,7 +52,7 @@ export default async function AboutPage() {
 
       {/* Section 1 — 인재상 */}
       <section className="bg-white">
-        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-32">
+        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
           <Reveal>
             <h2 className="text-center text-[26px] font-bold">
               클리드가 만들고자 하는 인재상
@@ -91,7 +91,7 @@ export default async function AboutPage() {
           style={{ backgroundImage: `url(${R2}/about-bg-strong-gray.jpg)` }}
         />
         <div className="absolute inset-0 bg-[rgba(61,61,61,0.85)]" />
-        <div className="relative mx-auto max-w-[1280px] px-4 py-20 text-center text-white lg:px-6">
+        <div className="relative mx-auto max-w-[1280px] px-4 py-24 text-center text-white lg:px-6 lg:py-28">
           <Reveal>
             <p className="text-[16px] leading-8">
               클리드의 소속이 되는 순간

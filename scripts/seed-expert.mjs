@@ -237,18 +237,27 @@ async function main() {
   // ─── Expert Program Content ──────────────────────────
   const sections = [
     {
-      key: "hero",
+      key: "brand",
       title: "ABOUT KLEAD",
-      subtitle: "클리드는 기술자를 강사로 만들지 않고 강사를 브랜드로 만듭니다.",
+      subtitle: "클리드는\n기술자를 강사로 만들지 않고\n강사를 브랜드로 만듭니다.",
       body: "우리는 수강생을 가르치지 않습니다.\n우리는 함께 브랜드를 만듭니다.",
-      backgroundImage:
-        "https://cdn.imweb.me/thumbnail/20260123/f7a37966e1a46.png",
+      items: [
+        { title: "Knowledge", meta: { variant: "outline", x: 16, y: 36 }, sortOrder: 0 },
+        { title: "Leadership", meta: { variant: "filled", x: 47, y: 23 }, sortOrder: 1 },
+        { title: "Direction", meta: { variant: "outline", x: 82, y: 38 }, sortOrder: 2 },
+        { title: "Aesthetic", meta: { variant: "filled", x: 15, y: 63 }, sortOrder: 3 },
+        { title: "Enterpreneurship", meta: { variant: "outline", x: 62, y: 76 }, sortOrder: 4 },
+        { title: "CLASS+", meta: { variant: "muted", x: 82, y: 63 }, sortOrder: 5 },
+        { title: "CLASS+", meta: { variant: "muted", x: 16, y: 78 }, sortOrder: 6 },
+      ],
       sortOrder: 0,
     },
     {
       key: "values",
       title: "클리드가 집중하는 핵심가치",
       body: "클리드는 단순히 기술을 배우는 곳이 아닙니다.\n배움 > 실전 > 브랜딩 > 창업 > 매출 > 확장까지\n끝까지 책임지는 성과 중심 아카데미 입니다.\n\n누구나 배울 수는 있지만,\n아무나 클리드가 될 수는 없습니다.",
+      backgroundImage:
+        "https://cdn.imweb.me/thumbnail/20260123/71698c2df52a9.jpg",
       items: [
         {
           title: "학습자 중심",
@@ -266,19 +275,19 @@ async function main() {
           sortOrder: 1,
         },
         {
-          title: "상호작용 기반",
-          description:
-            "질문과 피드백 그리고 쪽집게 같은 코칭으로 상호작용 중심의 교육을 진행합니다.",
-          iconUrl:
-            "https://cdn.imweb.me/upload/S202312147f3235c86a141/86f3cef74aa17.png",
-          sortOrder: 2,
-        },
-        {
           title: "성과 기반",
           description:
             "완성된 강의안과 실연 능력으로 평가를 통해 완벽한 강사 자격을 갖춰드립니다.",
           iconUrl:
             "https://cdn.imweb.me/upload/S202312147f3235c86a141/f038166c695e6.png",
+          sortOrder: 2,
+        },
+        {
+          title: "상호작용 기반",
+          description:
+            "질문과 피드백 그리고 쪽집게 같은 코칭으로 상호작용 중심의 교육을 진행합니다.",
+          iconUrl:
+            "https://cdn.imweb.me/upload/S202312147f3235c86a141/86f3cef74aa17.png",
           sortOrder: 3,
         },
       ],
@@ -324,8 +333,6 @@ async function main() {
       title: "실전형 교육자 양성 프로그램",
       subtitle: "4단계 성장 구조",
       body: "클리드의 소속이 되는 순간\n누구도 범접할 수 없는 전문 강사가 됩니다.\n\n기술만 가르치지 않습니다.\n말 잘하는 법만 가르치지도 않습니다.\n\n전문성 + 커리큘럼 + 브랜딩 + 실전평가\n네가지를 모두 갖춘 사람만 강사라 부를 수 있습니다.",
-      backgroundImage:
-        "https://cdn.imweb.me/thumbnail/20260203/3d9b7044445cb.png",
       items: [
         {
           title: "01 교육학 기반 기초다지기",

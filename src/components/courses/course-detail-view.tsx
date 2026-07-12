@@ -36,7 +36,7 @@ function InsightSection({ section }: { section: IPageSection }) {
   if (!section.items?.length) return null;
   return (
     <section className="bg-[#0e0e0e] text-white">
-      <div className="mx-auto max-w-[1000px] px-4 py-16 lg:px-6 lg:py-20">
+      <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
         <p className="mb-8 text-center text-[14px] tracking-widest text-[#a9a9a9]">
           {section.title}
         </p>
@@ -59,7 +59,7 @@ function CurriculumSection({ section }: { section: IPageSection }) {
   if (!section.items?.length) return null;
   return (
     <section className="bg-white">
-      <div className="mx-auto max-w-[1000px] px-4 py-16 lg:px-6 lg:py-24">
+      <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
         <h2 className="mb-12 text-center text-[24px] font-bold sm:text-[30px]">
           {section.title}
         </h2>
@@ -101,7 +101,7 @@ function PhilosophySection({ section }: { section: IPageSection }) {
   if (!section.items?.length) return null;
   return (
     <section className="bg-[#0e0e0e] text-white">
-      <div className="mx-auto max-w-[1280px] px-4 py-16 lg:px-6 lg:py-24">
+      <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
         <h2 className="mb-12 text-center text-[22px] font-bold sm:text-[26px]">
           {section.title}
         </h2>
@@ -139,7 +139,7 @@ export function CourseDetailView({ course }: { course: CourseDetailData }) {
             />
           </div>
         )}
-        <div className="relative mx-auto max-w-[1000px] px-4 py-24 text-center text-white lg:px-6 lg:py-32">
+        <div className="relative mx-auto max-w-[1280px] px-4 py-24 text-center text-white lg:px-6 lg:py-28">
           {course.lectureCategory && (
             <p className="mb-4 text-[14px] tracking-widest text-klead-primary">
               {CATEGORY_LABEL[course.lectureCategory] ?? course.lectureCategory}

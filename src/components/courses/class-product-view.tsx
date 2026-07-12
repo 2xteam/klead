@@ -72,7 +72,7 @@ export function ClassProductView({
   ];
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-10 lg:px-6">
+    <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
       {/* breadcrumb */}
       <nav className="mb-6 flex items-center gap-2 text-[13px] text-klead-gray-500">
         <Link href="/" className="hover:text-klead-gray-900">

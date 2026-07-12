@@ -23,8 +23,8 @@ export async function InstagramSection() {
   if (!posts.length) return null;
 
   return (
-    <section className="bg-white py-16 lg:py-24">
-      <div className="mx-auto max-w-[1280px] px-4 lg:px-6">
+    <section className="bg-white">
+      <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
         <InstagramGallery posts={posts} />
       </div>
     </section>

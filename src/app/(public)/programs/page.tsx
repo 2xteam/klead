@@ -31,7 +31,7 @@ export default async function ProgramsPage() {
         description="구독권 하나로 등급별 강의를 자유롭게 열람하세요."
       />
       <section className="bg-white">
-        <div className="mx-auto max-w-[1280px] px-4 py-16 lg:px-6 lg:py-20">
+        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
           <div className="grid gap-6 md:grid-cols-3">
             {docs.map((p, i) => (
               <div

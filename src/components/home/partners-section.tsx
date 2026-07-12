@@ -12,8 +12,8 @@ export function PartnersSection() {
             "url(https://pub-f23d3474a3434b20a1d6eefa94c25422.r2.dev/klead/assets/7614a5ff9f642.jpg)",
         }}
       />
-      <div className="relative py-20 lg:py-24">
-        <div className="mx-auto max-w-[1280px] px-4 lg:px-6">
+      <div className="relative">
+        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
           <Reveal>
             <p className="mb-3 text-center text-[21px] font-medium text-white/70">
               성공 파트너 클리드

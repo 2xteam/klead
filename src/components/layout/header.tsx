@@ -84,11 +84,11 @@ export function Header({ nav }: { nav: NavItem[] }) {
               priority
             />
             <Image
-              src={overlay ? pageHero.logoWhite : brandAssets.logo.mobile}
+              src={overlay ? pageHero.logoWhite : brandAssets.logo.default}
               alt="클리드 : 뷰티양성교육기관"
               width={100}
               height={36}
-              className="h-auto w-[100px] lg:hidden"
+              className="h-auto w-[104px] lg:hidden"
               priority
             />
           </Link>

@@ -5,7 +5,7 @@ import { SquareCourseCard } from "@/components/common/square-course-card";
 
 export function CourseShowcaseSection() {
   return (
-    <section className="mx-auto max-w-[1280px] px-4 py-16 lg:px-6 lg:py-24">
+    <section className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
       <Reveal>
         <p className="mb-2 text-[15px] text-klead-gray-500">
           클리트 강의 종목 카테고리

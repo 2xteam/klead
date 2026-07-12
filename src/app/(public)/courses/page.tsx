@@ -70,7 +70,7 @@ export default async function CoursesPage() {
         description="클리드의 모든 과정은 현장 운영을 기준으로 설계됩니다."
       />
       <section className="bg-white">
-        <div className="mx-auto max-w-[1280px] px-4 py-16 lg:px-6 lg:py-20">
+        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
           <Suspense fallback={null}>
             <CoursesFilter courses={courses} />
           </Suspense>
