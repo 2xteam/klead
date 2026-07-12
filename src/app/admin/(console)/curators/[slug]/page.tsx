@@ -28,6 +28,7 @@ export default async function AdminCuratorEditPage({
   const isNew = slug === "new";
 
   let initial: CuratorFormData = EMPTY;
+  let contentId: string | null = null;
 
   if (!isNew) {
     await connectDB();
@@ -38,6 +39,7 @@ export default async function AdminCuratorEditPage({
       deletedAt: null,
     }).lean();
     if (!doc) notFound();
+    contentId = String(doc._id);
 
     initial = {
       slug: doc.slug,
@@ -67,7 +69,11 @@ export default async function AdminCuratorEditPage({
           <p className="mt-1 text-[13px] text-klead-gray-400">/{initial.slug}</p>
         )}
       </div>
-      <CuratorEditor slug={isNew ? null : slug} initial={initial} />
+      <CuratorEditor
+        slug={isNew ? null : slug}
+        contentId={contentId}
+        initial={initial}
+      />
     </div>
   );
 }

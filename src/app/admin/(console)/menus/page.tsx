@@ -30,6 +30,7 @@ export default async function AdminMenusPage() {
     isVisible: d.isVisible,
     icon: d.icon ?? null,
     badge: d.badge ?? null,
+    fixed: d.fixed ?? false,
   }));
 
   // parentId 기준 자식 그룹화 후 sortOrder 순 정렬
@@ -104,10 +105,17 @@ export default async function AdminMenusPage() {
                       {m.depth > 0 && (
                         <span className="text-klead-gray-400">└ </span>
                       )}
-                      <span className="font-medium">{m.name}</span>
-                      <span className="ml-2 text-[12px] text-klead-gray-400">
-                        /{m.slug}
-                      </span>
+                      <Link
+                        href={`/admin/menus/${m.id}`}
+                        className="font-medium hover:text-klead-primary hover:underline"
+                      >
+                        {m.name}
+                      </Link>
+                      {m.fixed && (
+                        <span className="ml-2 rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium text-klead-gray-500">
+                          고정
+                        </span>
+                      )}
                       {m.badge && (
                         <span className="ml-2 rounded-full bg-klead-primary/10 px-2 py-0.5 text-[11px] font-medium text-klead-primary">
                           {m.badge}
@@ -140,12 +148,24 @@ export default async function AdminMenusPage() {
                     {m.sortOrder}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/admin/menus/${m.id}`}
-                      className="text-[13px] font-medium text-klead-primary hover:underline"
-                    >
-                      수정
-                    </Link>
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        href={`/admin/menus/${m.id}`}
+                        className="text-[13px] font-medium text-klead-primary hover:underline"
+                      >
+                        수정
+                      </Link>
+                      {m.linkType === "internal" && m.path && (
+                        <a
+                          href={m.path}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[13px] font-medium text-klead-gray-500 hover:underline"
+                        >
+                          보기
+                        </a>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

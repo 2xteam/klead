@@ -29,6 +29,16 @@
   --font-sans: "Poppins", "Pretendard Variable", "Pretendard", sans-serif;
 }
 
+/* 갤러리 슬라이더 무한 마퀴 (오른쪽→왼쪽 연속 슬라이드) */
+@keyframes klead-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 * {
   box-sizing: border-box;
 }

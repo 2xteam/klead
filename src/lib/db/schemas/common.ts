@@ -72,6 +72,7 @@ export const PageSectionSchema = new Schema(
     imagePosition: { type: String, enum: ["left", "right"], default: "left" },
     lazy: { type: Boolean, default: false }, // 스크롤 시 지연 등장(fade-in-up)
     items: [PageSectionItemSchema],
+    bannerId: String, // type "banner" 참조
     sortOrder: { type: Number, default: 0 },
   },
   { _id: false },

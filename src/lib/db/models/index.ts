@@ -18,3 +18,5 @@ export * from "./tag";
 export * from "./popup";
 export * from "./site-setting";
 export * from "./instagram-post";
+export * from "./banner";
+export * from "./lecture-access";

@@ -32,10 +32,19 @@ function initials(name: string) {
 export default async function CuratorsPage() {
   const docs = await getCurators();
 
+  const ORDER = [
+    "kim-boryeong",
+    "kim-yujeong",
+    "shin-semi",
+    "moon-seolhui",
+    "lee-hayan",
+    "jo-euna",
+    "chae-hansol",
+  ];
   const curators = [...docs].sort((a, b) => {
-    if (a.slug === "curator-kim-boryeong") return -1;
-    if (b.slug === "curator-kim-boryeong") return 1;
-    return (a.title ?? "").localeCompare(b.title ?? "", "ko");
+    const ai = ORDER.indexOf(a.slug);
+    const bi = ORDER.indexOf(b.slug);
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
   });
 
   return (
@@ -50,9 +59,9 @@ export default async function CuratorsPage() {
       <section className="bg-white">
         <div className="mx-auto max-w-[1280px] px-4 py-16 lg:px-6 lg:py-20">
           {curators.length ? (
-            <ul className="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
               {curators.map((c) => {
-                const href = `/curators/${c.slug.replace(/^curator-/, "")}`;
+                const href = `/curators/${c.slug}`;
                 return (
                   <li key={c.slug}>
                     <Link href={href} className="group block text-center">

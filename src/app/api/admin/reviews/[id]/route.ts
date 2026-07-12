@@ -4,10 +4,8 @@ import { Types } from "mongoose";
 import connectDB from "@/lib/db/mongodb";
 import { Review } from "@/lib/db/models";
 
+// 별점·제목·내용은 구매자 작성 → 관리자 수정 불가. 노출/추천만 변경 가능.
 const updateSchema = z.object({
-  rating: z.number().int().min(1).max(5).optional(),
-  title: z.string().optional(),
-  body: z.string().min(1).optional(),
   isVisible: z.boolean().optional(),
   isFeatured: z.boolean().optional(),
 });

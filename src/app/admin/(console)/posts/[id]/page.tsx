@@ -23,6 +23,7 @@ const EMPTY: PostFormData = {
   isPinned: false,
   isPublic: false,
   publishStatus: "draft",
+  sections: [],
 };
 
 const EDITABLE_CATEGORIES: ContentCategory[] = [
@@ -42,7 +43,7 @@ export default async function AdminPostEditPage({
 
   if (id === "new") {
     return (
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-5xl">
         <div className="mb-6">
           <Link
             href="/admin/posts"
@@ -83,10 +84,11 @@ export default async function AdminPostEditPage({
     isPinned: doc.isPinned ?? false,
     isPublic: doc.isPublic ?? false,
     publishStatus: (doc.publish?.status ?? "draft") as PublishStatus,
+    sections: JSON.parse(JSON.stringify(doc.sections ?? [])),
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-5xl">
       <div className="mb-6">
         <Link
           href="/admin/posts"

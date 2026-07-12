@@ -7,7 +7,7 @@ import type { IMenu } from "@/lib/db/models/menu";
 
 const createSchema = z.object({
   name: z.string().min(1),
-  slug: z.string().min(1),
+  slug: z.string().optional(),
   parentId: z.string().nullable().optional(),
   linkType: z.enum(["internal", "external", "folder"]).default("internal"),
   path: z.string().optional(),
@@ -17,6 +17,18 @@ const createSchema = z.object({
   badge: z.string().optional(),
   icon: z.string().optional(),
 });
+
+/** 메뉴 고유 id(slug) 자동 생성 — UI에서 직접 관리하지 않음 */
+function autoSlug(name: string): string {
+  const base = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `m-${base || "menu"}-${Date.now().toString(36)}`;
+}
 
 function serialize(d: IMenu) {
   return {
@@ -32,6 +44,7 @@ function serialize(d: IMenu) {
     isVisible: d.isVisible,
     icon: d.icon ?? null,
     badge: d.badge ?? null,
+    fixed: d.fixed ?? false,
   };
 }
 
@@ -76,17 +89,14 @@ export async function POST(req: Request) {
     parentId = parent._id;
   }
 
-  const dup = await Menu.findOne({ slug: data.slug }).lean();
-  if (dup) {
-    return NextResponse.json(
-      { error: "이미 사용 중인 슬러그입니다." },
-      { status: 409 },
-    );
+  let slug = data.slug?.trim() || autoSlug(data.name);
+  while (await Menu.findOne({ slug }).select("_id").lean()) {
+    slug = autoSlug(data.name);
   }
 
   const doc = await Menu.create({
     name: data.name,
-    slug: data.slug,
+    slug,
     parentId,
     linkType: data.linkType,
     path: data.path || undefined,

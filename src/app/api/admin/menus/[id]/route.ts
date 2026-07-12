@@ -6,7 +6,7 @@ import { Menu } from "@/lib/db/models";
 
 const updateSchema = z.object({
   name: z.string().min(1),
-  slug: z.string().min(1),
+  slug: z.string().optional(),
   parentId: z.string().nullable().optional(),
   linkType: z.enum(["internal", "external", "folder"]),
   path: z.string().optional(),
@@ -43,6 +43,7 @@ export async function GET(
     isVisible: doc.isVisible,
     icon: doc.icon ?? null,
     badge: doc.badge ?? null,
+    fixed: doc.fixed ?? false,
   });
 }
 
@@ -93,34 +94,44 @@ export async function PUT(
     parentId = parent._id;
   }
 
-  const dup = await Menu.findOne({ slug: data.slug, _id: { $ne: id } }).lean();
-  if (dup) {
-    return NextResponse.json(
-      { error: "이미 사용 중인 슬러그입니다." },
-      { status: 409 },
-    );
+  const current = await Menu.findById(id).lean();
+  if (!current) {
+    return NextResponse.json({ error: "not found" }, { status: 404 });
   }
 
-  const doc = await Menu.findByIdAndUpdate(
-    id,
-    {
-      $set: {
-        name: data.name,
-        slug: data.slug,
-        parentId,
-        linkType: data.linkType,
-        path: data.path || undefined,
-        externalUrl: data.externalUrl || undefined,
-        sortOrder: data.sortOrder,
-        isVisible: data.isVisible,
-        badge: data.badge || undefined,
-        icon: data.icon || undefined,
-        depth,
-      },
-    },
-    { new: true },
-  ).lean();
+  // slug는 UI에서 관리하지 않음 — 제공 시에만 중복 검사, 아니면 기존 유지
+  if (data.slug && data.slug.trim()) {
+    const dup = await Menu.findOne({
+      slug: data.slug.trim(),
+      _id: { $ne: id },
+    }).lean();
+    if (dup) {
+      return NextResponse.json(
+        { error: "이미 사용 중인 슬러그입니다." },
+        { status: 409 },
+      );
+    }
+  }
 
+  const set: Record<string, unknown> = {
+    name: data.name,
+    parentId,
+    sortOrder: data.sortOrder,
+    isVisible: data.isVisible,
+    badge: data.badge || undefined,
+    icon: data.icon || undefined,
+    depth,
+  };
+  if (data.slug && data.slug.trim()) set.slug = data.slug.trim();
+
+  // 고정(시스템) 메뉴는 경로/링크유형을 수정할 수 없음 — 기존값 유지
+  if (!current.fixed) {
+    set.linkType = data.linkType;
+    set.path = data.path || undefined;
+    set.externalUrl = data.externalUrl || undefined;
+  }
+
+  const doc = await Menu.findByIdAndUpdate(id, { $set: set }, { new: true }).lean();
   if (!doc) {
     return NextResponse.json({ error: "not found" }, { status: 404 });
   }

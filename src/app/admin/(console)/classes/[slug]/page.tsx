@@ -1,9 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import connectDB from "@/lib/db/mongodb";
-import { Content } from "@/lib/db/models";
+import { Content, PermissionType } from "@/lib/db/models";
 import type { IPageSection } from "@/lib/db/models/content";
-import { ClassEditor, type ClassFormData } from "@/components/admin/class-editor";
+import {
+  ClassEditor,
+  type ClassFormData,
+  type PermissionOption,
+} from "@/components/admin/class-editor";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +25,16 @@ export default async function AdminClassEditPage({
   }).lean();
   if (!doc) notFound();
 
+  const permDocs = await PermissionType.find({ isActive: true })
+    .select("name code")
+    .sort({ sortOrder: 1 })
+    .lean();
+  const permissionOptions: PermissionOption[] = permDocs.map((p) => ({
+    id: String(p._id),
+    name: p.name,
+    code: p.code,
+  }));
+
   const initial: ClassFormData = {
     slug: doc.slug,
     title: doc.title,
@@ -30,13 +44,14 @@ export default async function AdminClassEditPage({
     priceDisplay: (doc.priceDisplay ?? "inquiry") as ClassFormData["priceDisplay"],
     priceAmount: doc.priceAmount ?? null,
     isPublic: doc.isPublic ?? false,
+    permissionTypeId: doc.permissionTypeId ? String(doc.permissionTypeId) : "",
     sections: JSON.parse(
       JSON.stringify(doc.sections ?? []),
     ) as IPageSection[],
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-5xl">
       <div className="mb-6">
         <Link
           href="/admin/classes"
@@ -47,7 +62,11 @@ export default async function AdminClassEditPage({
         <h1 className="mt-2 text-[22px] font-bold">강의 수정</h1>
         <p className="mt-1 text-[13px] text-klead-gray-400">/{doc.slug}</p>
       </div>
-      <ClassEditor initial={initial} />
+      <ClassEditor
+        initial={initial}
+        contentId={String(doc._id)}
+        permissionOptions={permissionOptions}
+      />
     </div>
   );
 }

@@ -2,20 +2,67 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { usePathname } from "next/navigation";
-import { brandAssets, mainNavigation, pageHero } from "@/config/site";
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { brandAssets, pageHero } from "@/config/site";
+import type { NavItem } from "@/config/site";
 import { DesktopNav, MobileNav } from "@/components/layout/navigation";
 
-export function Header() {
+interface DemoMember {
+  id: string;
+  name: string;
+  role: string;
+}
+
+function readMemberCookie(): DemoMember | null {
+  if (typeof document === "undefined") return null;
+  const m = document.cookie
+    .split("; ")
+    .find((c) => c.startsWith("klead_member="));
+  if (!m) return null;
+  let v = m.substring("klead_member=".length);
+  // 인코딩 횟수에 무관하게 파싱될 때까지 반복 디코드
+  for (let i = 0; i < 3; i++) {
+    try {
+      return JSON.parse(v) as DemoMember;
+    } catch {
+      try {
+        v = decodeURIComponent(v);
+      } catch {
+        break;
+      }
+    }
+  }
+  return null;
+}
+
+export function Header({ nav }: { nav: NavItem[] }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [member, setMember] = useState<DemoMember | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const navItems: NavItem[] = nav;
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setMember(readMemberCookie()));
+    return () => cancelAnimationFrame(raf);
+  }, [pathname]);
+
+  async function logout() {
+    await fetch("/api/dev-login", { method: "DELETE" });
+    setMember(null);
+    router.refresh();
+  }
 
   // 클리드/테크 큐레이터 페이지: 헤더를 헤로 이미지 위에 투명 오버레이
   const overlay =
     pathname === "/about" ||
     pathname === "/curators" ||
-    pathname.startsWith("/curators/");
+    pathname.startsWith("/curators/") ||
+    pathname === "/courses" ||
+    pathname === "/programs" ||
+    pathname.startsWith("/programs/");
 
   return (
     <>
@@ -46,15 +93,32 @@ export function Header() {
             />
           </Link>
 
-          <DesktopNav items={mainNavigation} />
+          <DesktopNav items={navItems} />
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-[14px] text-[#161616] transition-colors hover:text-klead-primary"
-            >
-              로그인
-            </Link>
+            {member ? (
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/mypage"
+                  className="text-[14px] text-[#161616] transition-colors hover:text-klead-primary"
+                >
+                  마이페이지
+                </Link>
+                <button
+                  onClick={logout}
+                  className="text-[14px] text-[#161616] transition-colors hover:text-klead-primary"
+                >
+                  로그아웃
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="text-[14px] text-[#161616] transition-colors hover:text-klead-primary"
+              >
+                로그인
+              </Link>
+            )}
 
             <button
               type="button"
@@ -71,7 +135,7 @@ export function Header() {
       </header>
 
       <MobileNav
-        items={mainNavigation}
+        items={navItems}
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
       />

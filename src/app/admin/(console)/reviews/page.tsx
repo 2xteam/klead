@@ -7,7 +7,7 @@ import type { IReview } from "@/lib/db/models/review";
 export const dynamic = "force-dynamic";
 
 type PopulatedReview = Omit<IReview, "contentId" | "userId"> & {
-  contentId: { _id: Types.ObjectId; title: string } | null;
+  contentId: { _id: Types.ObjectId; title: string; slug: string } | null;
   userId: { _id: Types.ObjectId; name: string } | null;
 };
 
@@ -18,7 +18,7 @@ function stars(rating: number): string {
 export default async function AdminReviewsPage() {
   await connectDB();
   const docs = (await Review.find({})
-    .populate("contentId", "title")
+    .populate("contentId", "title slug")
     .populate("userId", "name")
     .sort({ createdAt: -1 })
     .lean()) as unknown as PopulatedReview[];
@@ -64,9 +64,12 @@ export default async function AdminReviewsPage() {
                   className="border-b border-black/5 last:border-0 hover:bg-[#fafafa]"
                 >
                   <td className="px-4 py-3">
-                    <span className="font-medium">
+                    <Link
+                      href={`/admin/reviews/${String(d._id)}`}
+                      className="font-medium hover:text-klead-primary hover:underline"
+                    >
                       {d.contentId?.title ?? "-"}
-                    </span>
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-klead-gray-500">
                     {d.userId?.name ?? "-"}
@@ -102,12 +105,24 @@ export default async function AdminReviewsPage() {
                       : "-"}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Link
-                      href={`/admin/reviews/${String(d._id)}`}
-                      className="text-[13px] font-medium text-klead-primary hover:underline"
-                    >
-                      수정
-                    </Link>
+                    <div className="flex items-center justify-end gap-3">
+                      <Link
+                        href={`/admin/reviews/${String(d._id)}`}
+                        className="text-[13px] font-medium text-klead-primary hover:underline"
+                      >
+                        수정
+                      </Link>
+                      {d.contentId?.slug && (
+                        <a
+                          href={`/courses/${d.contentId.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[13px] font-medium text-klead-gray-500 hover:underline"
+                        >
+                          보기
+                        </a>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

@@ -16,7 +16,11 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPostsPage() {
   await connectDB();
-  const docs = await Content.find({ type: "content", deletedAt: null })
+  const docs = await Content.find({
+    type: "content",
+    contentCategory: { $ne: "curator" },
+    deletedAt: null,
+  })
     .select("slug title contentCategory isPublic isPinned updatedAt")
     .sort({ updatedAt: -1 })
     .lean();
@@ -57,7 +61,12 @@ export default async function AdminPostsPage() {
                 className="border-b border-black/5 last:border-0 hover:bg-[#fafafa]"
               >
                 <td className="px-4 py-3">
-                  <span className="font-medium">{d.title}</span>
+                  <Link
+                    href={`/admin/posts/${String(d._id)}`}
+                    className="font-medium hover:text-klead-primary hover:underline"
+                  >
+                    {d.title}
+                  </Link>
                   <span className="ml-2 text-[12px] text-klead-gray-400">
                     /{d.slug}
                   </span>

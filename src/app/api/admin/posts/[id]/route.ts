@@ -24,6 +24,7 @@ const updateSchema = z.object({
   isPinned: z.boolean().optional(),
   isPublic: z.boolean().optional(),
   publishStatus: z.enum(STATUS_ENUM).optional(),
+  sections: z.array(z.any()).optional(),
 });
 
 export async function GET(
@@ -112,6 +113,7 @@ export async function PUT(
   if (data.isPublic !== undefined) set.isPublic = data.isPublic;
   if (data.publishStatus !== undefined)
     set["publish.status"] = data.publishStatus;
+  if (data.sections !== undefined) set.sections = data.sections;
 
   const doc = await Content.findOneAndUpdate(
     { _id: id, type: "content", deletedAt: null },
