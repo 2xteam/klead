@@ -2,14 +2,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import connectDB from "@/lib/db/mongodb";
-import {
-  User,
-  Subscription,
-  ProgramPermission,
-  ContentPermission,
-  Content,
-} from "@/lib/db/models";
-import type { Types } from "mongoose";
+import { User, Subscription, ContentPermission, Content } from "@/lib/db/models";
+import { getAccessiblePermissionTypeIds } from "@/lib/content/access";
+import { getUserGrantedContentIds } from "@/lib/content/lecture-access";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "마이페이지 | 클리드" };
@@ -90,30 +85,27 @@ export default async function MyPage() {
   });
   const activeSubs = subs.filter((s) => s.active);
 
-  // 접근 가능한 강의: 활성 구독 → 프로그램 권한 → 콘텐츠 권한 → 강의
-  const activeProgramIds = subsRaw
-    .filter((s) => s.status === "active" && s.endAt && new Date(s.endAt) > now)
-    .map((s) => (s.programId as unknown as { _id: Types.ObjectId })?._id)
-    .filter(Boolean);
+  // 접근 가능한 강의: 활성 구독 + 직접부여(UserPermission) → 권한 → 콘텐츠,
+  // 그리고 강의 열람권(LectureAccess)으로 부여된 콘텐츠를 합산.
+  const [permTypeIds, grantedContentIds] = await Promise.all([
+    getAccessiblePermissionTypeIds(member.id),
+    getUserGrantedContentIds(member.id),
+  ]);
 
-  let lectures: { slug: string; title: string; category?: string }[] = [];
-  if (activeProgramIds.length) {
-    const progPerms = await ProgramPermission.find({
-      programId: { $in: activeProgramIds },
-    })
-      .select("permissionTypeId")
-      .lean();
-    const permTypeIds = progPerms.map((p) => p.permissionTypeId);
+  const contentIds = new Set<string>(grantedContentIds);
+  if (permTypeIds.size) {
     const contentPerms = await ContentPermission.find({
-      permissionTypeId: { $in: permTypeIds },
+      permissionTypeId: { $in: [...permTypeIds] },
     })
       .select("contentId")
       .lean();
-    const contentIds = [
-      ...new Set(contentPerms.map((c) => String(c.contentId))),
-    ];
+    contentPerms.forEach((c) => contentIds.add(String(c.contentId)));
+  }
+
+  let lectures: { slug: string; title: string; category?: string }[] = [];
+  if (contentIds.size) {
     const docs = await Content.find({
-      _id: { $in: contentIds },
+      _id: { $in: [...contentIds] },
       type: "lecture",
       deletedAt: null,
     })

@@ -29,7 +29,7 @@ interface Thread {
   messages: Msg[];
 }
 
-const IDLE_MS = 20_000;
+const IDLE_MS = 5_000;
 const LS_KEY = "klead_ai_threads_v1";
 const MAX_THREADS = 20;
 
@@ -233,21 +233,36 @@ export function AiAssistant() {
         {nudge && !open && (
           <button
             onClick={openPanel}
-            className="max-w-[220px] animate-[fadeInUp_0.4s_ease] rounded-2xl rounded-br-sm bg-white px-4 py-2.5 text-left text-[13px] font-medium text-[#161616] shadow-[0_8px_30px_rgba(0,0,0,0.14)] ring-1 ring-black/5"
+            style={{
+              transformOrigin: "bottom right",
+              animation:
+                "klpop 0.55s cubic-bezier(0.34,1.56,0.64,1) both, klbob 2.2s 0.7s ease-in-out infinite",
+            }}
+            className="max-w-[240px] rounded-2xl rounded-br-sm bg-white px-4 py-2.5 text-left text-[14px] font-semibold text-[#161616] shadow-[0_10px_34px_rgba(124,58,237,0.28)] ring-1 ring-klead-primary/15"
           >
             {KLEAD_AI_NUDGE}
           </button>
         )}
         {!open && (
-          <button
-            onClick={openPanel}
-            aria-label="AI 상담사 열기"
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-klead-primary to-[#c084fc] text-white shadow-[0_10px_30px_rgba(124,58,237,0.45)] transition-transform hover:scale-105"
-          >
-            <span className="text-[11px] font-bold leading-none">
-              AI<span className="ml-0.5 align-top text-[10px]">✨</span>
-            </span>
-          </button>
+          <div className="relative">
+            {/* 은은한 뷰티 글로우 */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-gradient-to-br from-klead-primary to-[#f5a9d0] blur-lg"
+              style={{ animation: "klglow 2.6s ease-in-out infinite" }}
+            />
+            <button
+              onClick={openPanel}
+              aria-label="AI 뷰티 상담사 열기"
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-klead-primary via-[#a855f7] to-[#f5a9d0] text-white shadow-[0_8px_26px_rgba(124,58,237,0.45)] ring-1 ring-white/50 transition-transform duration-300 hover:scale-110"
+            >
+              {/* 스파클 — 뷰티 + AI 상징 */}
+              <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
+                <path d="M12 2.2c.5 3.75 2.05 5.3 5.8 5.8-3.75.5-5.3 2.05-5.8 5.8-.5-3.75-2.05-5.3-5.8-5.8 3.75-.5 5.3-2.05 5.8-5.8z" />
+                <path d="M18.7 13.4c.24 1.75 1 2.51 2.75 2.75-1.75.24-2.51 1-2.75 2.75-.24-1.75-1-2.51-2.75-2.75 1.75-.24 2.51-1 2.75-2.75z" />
+              </svg>
+            </button>
+          </div>
         )}
       </div>
 
@@ -379,11 +394,16 @@ export function AiAssistant() {
                   ))}
 
                   {sending && (
-                    <Bubble role="assistant">
-                      <span className="inline-flex gap-1">
-                        <Dot /> <Dot d={0.15} /> <Dot d={0.3} />
-                      </span>
-                    </Bubble>
+                    <div className="flex justify-start">
+                      <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-white px-3.5 py-2.5 ring-1 ring-black/5">
+                        <span className="inline-flex items-center gap-1">
+                          <Dot /> <Dot d={0.16} /> <Dot d={0.32} />
+                        </span>
+                        <span className="text-[13px] text-klead-gray-500">
+                          뷰티 상담사가 답변을 정리하고 있어요…
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
 
@@ -418,7 +438,7 @@ export function AiAssistant() {
         </div>
       )}
 
-      <style>{`@keyframes fadeInUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
+      <style>{`@keyframes fadeInUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes klbounce{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-5px);opacity:1}}@keyframes klpop{0%{opacity:0;transform:scale(.4) translateY(16px)}55%{opacity:1;transform:scale(1.12) translateY(-6px)}75%{transform:scale(.96) translateY(2px)}100%{opacity:1;transform:scale(1) translateY(0)}}@keyframes klbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}@keyframes klglow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.7;transform:scale(1.12)}}`}</style>
     </>
   );
 }
@@ -473,8 +493,8 @@ function CardView({ card, onNavigate }: { card: Card; onNavigate: () => void }) 
 function Dot({ d = 0 }: { d?: number }) {
   return (
     <span
-      className="inline-block h-1.5 w-1.5 rounded-full bg-klead-gray-400"
-      style={{ animation: `pulse 1s ${d}s infinite` }}
+      className="inline-block h-2 w-2 rounded-full bg-klead-primary"
+      style={{ animation: `klbounce 1.2s ${d}s infinite ease-in-out` }}
     />
   );
 }
