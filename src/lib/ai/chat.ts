@@ -8,7 +8,8 @@ import { KLEAD_AI_PERSONA } from "@/lib/ai/persona";
 import { KLEAD_TOOLS, runTool, type AiCard } from "@/lib/ai/tools";
 
 function getClient(): OpenAI {
-  const apiKey = process.env.OPENAI_API_KEY;
+  // 환경변수 값 끝에 개행/공백/따옴표가 섞여도 안전하도록 정리
+  const apiKey = process.env.OPENAI_API_KEY?.trim().replace(/^["']|["']$/g, "");
   if (!apiKey) throw new Error("OPENAI_API_KEY 환경 변수가 설정되지 않았습니다.");
   return new OpenAI({ apiKey });
 }
