@@ -12,13 +12,13 @@ export function PartnersSection() {
             "url(https://pub-f23d3474a3434b20a1d6eefa94c25422.r2.dev/klead/assets/7614a5ff9f642.jpg)",
         }}
       />
-      <div className="relative">
-        <div className="mx-auto max-w-[1280px] px-4 py-24 lg:px-6 lg:py-28">
+      <div className="relative pb-20 lg:pb-24">
+        <div className="mx-auto max-w-[1280px] px-4 pt-24 pb-8 lg:px-6 lg:pt-28">
           <Reveal>
             <p className="mb-3 text-center text-[21px] font-medium text-white/70">
               성공 파트너 클리드
             </p>
-            <h2 className="mb-16 text-center text-[36px] font-bold text-white sm:text-[45px]">
+            <h2 className="mb-10 text-center text-[36px] font-bold text-white sm:text-[45px]">
               클리드와 함께하는 파트너
             </h2>
           </Reveal>
